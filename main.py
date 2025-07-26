@@ -19,14 +19,20 @@ SIGNALS = {
     "weekly_tops": {},
 }
 
-
 def get_fear_and_greed():
+    import datetime
+    import csv
+    import requests
+
     url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         data = response.json()
+
+        print("🔍 Raw Fear & Greed Data:", data)  # Debug output
+
         fg_value = data["fear_and_greed"]["now"]
         fg_previous = data["fear_and_greed"]["previous_close"]
         timestamp = data["fear_and_greed"]["timestamp"]
@@ -43,7 +49,6 @@ def get_fear_and_greed():
     except Exception as e:
         print(f"⚠️ Error fetching Fear & Greed Index: {e}")
         return "N/A", "N/A", "N/A"
-
 
 def generate_fear_and_greed_chart():
     dates, values = [], []
