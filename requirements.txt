@@ -2,6 +2,6 @@ yfinance
 pandas
 lxml
 yahooquery
-beatifulsoup4
+beautifulsoup4
 matplotlib
 requests
