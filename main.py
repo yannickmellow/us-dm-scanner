@@ -22,9 +22,9 @@ SIGNALS = {
 
 def get_fear_and_greed():
     url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
-    headers = {"User-Agent": "Mozilla/5.0"}
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
     try:
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
         data = response.json()
         fg_value = data["fear_and_greed"]["now"]
