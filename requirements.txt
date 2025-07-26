@@ -1,5 +1,4 @@
 yfinance
 pandas
-beautifulsoup4
 lxml
 yahooquery
