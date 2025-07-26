@@ -2,6 +2,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import os
 from yahooquery import Ticker
+import requests  # 🔹 Added for CNN data fetch
 
 def fetch_asx200_tickers():
     cache_file = "asx200_cache.txt"
@@ -57,7 +58,6 @@ def scan_timeframe(tickers, interval_label, interval):
     for ticker in tickers:
         try:
             tk = Ticker(ticker)
-            # Fetch more data for weekly scans
             period = '2y' if interval == '1wk' else '6mo'
             hist = tk.history(period=period, interval=interval)
             if hist.empty:
@@ -71,7 +71,6 @@ def scan_timeframe(tickers, interval_label, interval):
             df = df.reset_index()
             df.columns = [c.lower() for c in df.columns]
 
-            # Remove last candle if it's from the current (incomplete) week
             if interval == '1wk':
                 last_date = df['date'].iloc[-1].date()
                 today = datetime.utcnow().date()
@@ -90,7 +89,27 @@ def scan_timeframe(tickers, interval_label, interval):
 
     return results
 
-def write_html_report(timestamp, daily, weekly):
+# 🔹 New: Fetch CNN Fear & Greed Index
+def get_fear_and_greed():
+    url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
+    response = requests.get(url)
+    data = response.json()
+    score = data["fear_and_greed"]["score"]
+    rating = data["fear_and_greed"]["rating"]
+    timestamp = data["fear_and_greed"]["timestamp"]
+    date = datetime.fromisoformat(timestamp).strftime("%Y-%m-%d")
+    return score, rating.title(), date
+
+# 🔹 Modified to accept fear/greed data
+def write_html_report(timestamp, daily, weekly, fg_data):
+    score, rating, fg_date = fg_data
+    fear_section = f"""
+    <h2>🧠 CNN Fear & Greed Index</h2>
+    <p><strong>Value:</strong> {score}</p>
+    <p><strong>Rating:</strong> {rating}</p>
+    <p><small>Last updated: {fg_date}</small></p>
+    """
+
     sections = [
         ("Daily Bottoms", daily["Bottoms"]),
         ("Weekly Bottoms", weekly["Bottoms"]),
@@ -112,6 +131,7 @@ def write_html_report(timestamp, daily, weekly):
 <body>
     <h1>US DM Signals</h1>
     <p>Last updated: {timestamp}</p>
+    {fear_section}
 """
 
     for title, data in sections:
@@ -137,6 +157,8 @@ def main():
     daily_signals = scan_timeframe(tickers, "1D", "1d")
     weekly_signals = scan_timeframe(tickers, "1W", "1wk")
 
+    fg_data = get_fear_and_greed()  # 🔹 New line
+
     print(f"\n📋 DeMark Signals as of {now_str}\n" + "=" * 40)
 
     def print_section(title, signals):
@@ -152,7 +174,7 @@ def main():
     print_section("Daily Tops", daily_signals["Tops"])
     print_section("Weekly Tops", weekly_signals["Tops"])
 
-    write_html_report(now_str, daily_signals, weekly_signals)
+    write_html_report(now_str, daily_signals, weekly_signals, fg_data)  # 🔹 Pass fg_data
 
 if __name__ == "__main__":
     main()
