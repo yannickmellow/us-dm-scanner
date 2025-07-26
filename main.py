@@ -14,6 +14,7 @@ def fetch_tickers_from_cache(cache_file):
             return tickers
     return []
 
+
 def compute_dm_signals(df):
     close = df["close"].values
     length = len(close)
@@ -45,6 +46,7 @@ def compute_dm_signals(df):
     DM13Bot = TDDn[-1] == 13
 
     return DM9Top, DM13Top, DM9Bot, DM13Bot
+
 
 def scan_timeframe(tickers, interval_label, interval):
     results = {"Tops": [], "Bottoms": []}
@@ -131,7 +133,14 @@ def get_fear_and_greed():
         return "N/A", "N/A", "N/A"
 
 
-def write_html_report(sections, fg_index, fg_prev, fg_date, fg_history):
+def generate_html_table(data):
+    if not data:
+        return "<p>No signals.</p>"
+    df = pd.DataFrame(data, columns=["Ticker", "Signal"])
+    return df.to_html(index=False, border=0, classes='signal-table')
+
+
+def write_html_report(sections, fg_index, fg_prev, fg_date, fg_history_csv_path):
     fg_color = "#28a745" if fg_index != "N/A" and float(fg_index) >= 50 else "#dc3545"
 
     html = f"""
@@ -164,17 +173,17 @@ def write_html_report(sections, fg_index, fg_prev, fg_date, fg_history):
                 flex: 1;
                 margin: 0 10px;
             }}
-            table {{
+            table.signal-table {{
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 10px;
             }}
-            th, td {{
+            table.signal-table th, table.signal-table td {{
                 border: 1px solid #ccc;
                 padding: 6px 8px;
                 text-align: left;
             }}
-            th {{
+            table.signal-table th {{
                 background-color: #f0f0f0;
             }}
             img {{
@@ -230,6 +239,7 @@ def write_html_report(sections, fg_index, fg_prev, fg_date, fg_history):
     </html>
     """
 
+    os.makedirs("docs", exist_ok=True)
     with open("docs/index.html", "w", encoding="utf-8") as f:
         f.write(html)
 
@@ -260,7 +270,15 @@ def main():
     print_section("Daily Tops", daily_signals["Tops"])
     print_section("Weekly Tops", weekly_signals["Tops"])
 
-    write_html_report(daily_signals, weekly_signals, fg_val, fg_prev, fg_date)
+    sections = {
+        "Daily Bottoms": generate_html_table(daily_signals["Bottoms"]),
+        "Weekly Bottoms": generate_html_table(weekly_signals["Bottoms"]),
+        "Daily Tops": generate_html_table(daily_signals["Tops"]),
+        "Weekly Tops": generate_html_table(weekly_signals["Tops"]),
+    }
+
+    write_html_report(sections, fg_val, fg_prev, fg_date, "fear_and_greed_history.csv")
+
 
 if __name__ == "__main__":
     main()
