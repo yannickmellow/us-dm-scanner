@@ -4,16 +4,22 @@ import os
 from yahooquery import Ticker
 import requests
 import csv
+from collections import defaultdict
 
-
-def fetch_tickers_from_cache(cache_file):
+def fetch_tickers_and_sectors_from_csv(cache_file):
+    mapping = {}
     if os.path.exists(cache_file):
-        with open(cache_file, "r") as f:
-            tickers = [line.strip() for line in f if line.strip()]
-            print(f"✅ Loaded {len(tickers)} from {cache_file}")
-            return tickers
-    return []
-
+        with open(cache_file, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                ticker = row.get('Ticker')
+                sector = row.get('Sector')
+                if ticker and sector:
+                    mapping[ticker.strip()] = sector.strip()
+        print(f"✅ Loaded {len(mapping)} tickers & sectors from {cache_file}")
+    else:
+        print(f"❌ Cache file {cache_file} not found!")
+    return mapping
 
 def compute_dm_signals(df):
     close = df["close"].values
@@ -47,9 +53,14 @@ def compute_dm_signals(df):
 
     return DM9Top, DM13Top, DM9Bot, DM13Bot
 
-
-def scan_timeframe(tickers, interval_label, interval):
+def scan_timeframe(ticker_sector_map, interval_label, interval):
     results = {"Tops": [], "Bottoms": []}
+    sector_counts = {
+        "Tops": defaultdict(int),
+        "Bottoms": defaultdict(int)
+    }
+
+    tickers = list(ticker_sector_map.keys())
     print(f"\n🔍 Scanning {len(tickers)} tickers on {interval_label} timeframe...")
 
     for ticker in tickers:
@@ -76,16 +87,22 @@ def scan_timeframe(tickers, interval_label, interval):
 
             DM9Top, DM13Top, DM9Bot, DM13Bot = compute_dm_signals(df)
 
+            sector = ticker_sector_map.get(ticker, "Unknown")
+
             if DM9Top or DM13Top:
-                results["Tops"].append((ticker, "DM13 Top" if DM13Top else "DM9 Top"))
+                signal = "DM13 Top" if DM13Top else "DM9 Top"
+                results["Tops"].append((ticker, signal))
+                sector_counts["Tops"][sector] += 1
+
             if DM9Bot or DM13Bot:
-                results["Bottoms"].append((ticker, "DM13 Bot" if DM13Bot else "DM9 Bot"))
+                signal = "DM13 Bot" if DM13Bot else "DM9 Bot"
+                results["Bottoms"].append((ticker, signal))
+                sector_counts["Bottoms"][sector] += 1
 
         except Exception as e:
             print(f"⚠️ Skipping {ticker} [{interval_label}] due to error: {e}")
 
-    return results
-
+    return results, sector_counts
 
 def get_fear_and_greed():
     url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
@@ -132,15 +149,27 @@ def get_fear_and_greed():
         print(f"⚠️ Error fetching Fear & Greed Index: {e}")
         return "N/A", "N/A", "N/A"
 
+def sector_counts_to_html(title, sector_counts):
+    if not sector_counts:
+        return "<p>No sector data.</p>"
 
-def generate_html_table(data):
-    if not data:
+    html = f"<h3>{title}</h3><table><tr><th>Sector</th><th>Count</th></tr>"
+    for sector, count in sorted(sector_counts.items(), key=lambda x: x[1], reverse=True):
+        html += f"<tr><td>{sector}</td><td>{count}</td></tr>"
+    html += "</table>"
+    return html
+
+def signals_to_html_table(signals):
+    if not signals:
         return "<p>No signals.</p>"
-    df = pd.DataFrame(data, columns=["Ticker", "Signal"])
-    return df.to_html(index=False, border=0, classes='signal-table')
 
+    html = "<table><tr><th>Ticker</th><th>Signal</th></tr>"
+    for ticker, signal in signals:
+        html += f"<tr><td>{ticker}</td><td>{signal}</td></tr>"
+    html += "</table>"
+    return html
 
-def write_html_report(sections, fg_index, fg_prev, fg_date, fg_history_csv_path):
+def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_index, fg_prev, fg_date):
     fg_color = "#28a745" if fg_index != "N/A" and float(fg_index) >= 50 else "#dc3545"
 
     html = f"""
@@ -173,22 +202,18 @@ def write_html_report(sections, fg_index, fg_prev, fg_date, fg_history_csv_path)
                 flex: 1;
                 margin: 0 10px;
             }}
-            table.signal-table {{
+            table {{
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 10px;
             }}
-            table.signal-table th, table.signal-table td {{
+            th, td {{
                 border: 1px solid #ccc;
                 padding: 6px 8px;
                 text-align: left;
             }}
-            table.signal-table th {{
+            th {{
                 background-color: #f0f0f0;
-            }}
-            img {{
-                max-width: 400px;
-                margin-top: 10px;
             }}
         </style>
     </head>
@@ -197,25 +222,20 @@ def write_html_report(sections, fg_index, fg_prev, fg_date, fg_history_csv_path)
         <div class="fg-box">
             <strong>CNN Fear & Greed Index:</strong> {fg_index} (Prev: {fg_prev}) on {fg_date}
         </div><br>
-        <img src="fear_and_greed_chart.png" alt="Fear & Greed Trend">
     """
-
-    # Extract tables
-    daily_bottoms = sections.get("Daily Bottoms", "<p>No signals.</p>")
-    weekly_bottoms = sections.get("Weekly Bottoms", "<p>No signals.</p>")
-    daily_tops = sections.get("Daily Tops", "<p>No signals.</p>")
-    weekly_tops = sections.get("Weekly Tops", "<p>No signals.</p>")
 
     # Row 1: Bottoms
     html += f"""
     <div class="row">
         <div class="column">
             <h2>Daily Bottoms</h2>
-            {daily_bottoms}
+            {signals_to_html_table(daily_results["Bottoms"])}
+            {sector_counts_to_html("Daily Bottoms by Sector", daily_sectors["Bottoms"])}
         </div>
         <div class="column">
             <h2>Weekly Bottoms</h2>
-            {weekly_bottoms}
+            {signals_to_html_table(weekly_results["Bottoms"])}
+            {sector_counts_to_html("Weekly Bottoms by Sector", weekly_sectors["Bottoms"])}
         </div>
     </div>
     """
@@ -225,11 +245,13 @@ def write_html_report(sections, fg_index, fg_prev, fg_date, fg_history_csv_path)
     <div class="row">
         <div class="column">
             <h2>Daily Tops</h2>
-            {daily_tops}
+            {signals_to_html_table(daily_results["Tops"])}
+            {sector_counts_to_html("Daily Tops by Sector", daily_sectors["Tops"])}
         </div>
         <div class="column">
             <h2>Weekly Tops</h2>
-            {weekly_tops}
+            {signals_to_html_table(weekly_results["Tops"])}
+            {sector_counts_to_html("Weekly Tops by Sector", weekly_sectors["Tops"])}
         </div>
     </div>
     """
@@ -243,18 +265,17 @@ def write_html_report(sections, fg_index, fg_prev, fg_date, fg_history_csv_path)
     with open("docs/index.html", "w", encoding="utf-8") as f:
         f.write(html)
 
-
 def main():
-    sp500 = fetch_tickers_from_cache("sp_cache.txt")
-    russell = fetch_tickers_from_cache("russell_cache.txt")
-    nasdaq = fetch_tickers_from_cache("nasdaq_cache.txt")
-    all_tickers = sp500 + russell + nasdaq
+    sp500_map = fetch_tickers_and_sectors_from_csv("sp_cache.csv")
+    russell_map = fetch_tickers_and_sectors_from_csv("russell_cache.csv")
+    nasdaq_map = fetch_tickers_and_sectors_from_csv("nasdaq_cache.csv")
+    all_map = {**sp500_map, **russell_map, **nasdaq_map}
 
     now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
     fg_val, fg_prev, fg_date = get_fear_and_greed()
 
-    daily_signals = scan_timeframe(all_tickers, "1D", "1d")
-    weekly_signals = scan_timeframe(all_tickers, "1W", "1wk")
+    daily_results, daily_sectors = scan_timeframe(all_map, "1D", "1d")
+    weekly_results, weekly_sectors = scan_timeframe(all_map, "1W", "1wk")
 
     def print_section(title, signals):
         print(f"\n🔸 {title}\n" + "-" * 40)
@@ -265,20 +286,12 @@ def main():
             print("None")
 
     print(f"\n📋 DeMark Signals as of {now_str}\n" + "=" * 40)
-    print_section("Daily Bottoms", daily_signals["Bottoms"])
-    print_section("Weekly Bottoms", weekly_signals["Bottoms"])
-    print_section("Daily Tops", daily_signals["Tops"])
-    print_section("Weekly Tops", weekly_signals["Tops"])
+    print_section("Daily Bottoms", daily_results["Bottoms"])
+    print_section("Weekly Bottoms", weekly_results["Bottoms"])
+    print_section("Daily Tops", daily_results["Tops"])
+    print_section("Weekly Tops", weekly_results["Tops"])
 
-    sections = {
-        "Daily Bottoms": generate_html_table(daily_signals["Bottoms"]),
-        "Weekly Bottoms": generate_html_table(weekly_signals["Bottoms"]),
-        "Daily Tops": generate_html_table(daily_signals["Tops"]),
-        "Weekly Tops": generate_html_table(weekly_signals["Tops"]),
-    }
-
-    write_html_report(sections, fg_val, fg_prev, fg_date, "fear_and_greed_history.csv")
-
+    write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_val, fg_prev, fg_date)
 
 if __name__ == "__main__":
     main()
