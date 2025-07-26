@@ -1,0 +1,42 @@
+name: ASX DeMark Scan and Publish
+
+on:
+  schedule:
+    - cron: '0 11 * * 1-5'  # 8:30pm ACST = 11:00 UTC
+  workflow_dispatch:
+
+jobs:
+  scan-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: 📦 Install dependencies
+        run: |
+          pip install yahooquery pandas
+
+      - name: 🧠 Run DeMark scanner
+        run: python main.py
+
+      - name: ✅ Commit updated report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/index.html
+          git commit -m "🔄 Update report [auto]" || echo "No changes to commit"
+          git push
+
+
+      # ✅ REMOVE this step below if using /docs on main
+      # - name: 🚀 Deploy to GitHub Pages
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: ./docs
