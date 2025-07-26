@@ -81,9 +81,9 @@ def scan_timeframe(tickers, interval_label, interval):
             DM9Top, DM13Top, DM9Bot, DM13Bot = compute_dm_signals(df)
 
             if DM9Top or DM13Top:
-                results["Tops"].append((ticker, "DM13Top" if DM13Top else "DM9Top"))
+                results["Tops"].append((ticker, "DM13 Top" if DM13Top else "DM9 Top"))
             if DM9Bot or DM13Bot:
-                results["Bottoms"].append((ticker, "DM13Bot" if DM13Bot else "DM9Bot"))
+                results["Bottoms"].append((ticker, "DM13 Bot" if DM13Bot else "DM9 Bot"))
 
         except Exception as e:
             print(f"⚠️ Skipping {ticker} [{interval_label}] due to error: {e}")
@@ -100,7 +100,7 @@ def write_html_report(timestamp, daily, weekly):
 
     html = f"""<html>
 <head>
-    <title>ASX DeMark Signals</title>
+    <title>US DM Signals</title>
     <style>
         body {{ font-family: Arial, sans-serif; padding: 2em; }}
         h2 {{ border-bottom: 1px solid #ccc; }}
@@ -110,7 +110,7 @@ def write_html_report(timestamp, daily, weekly):
     </style>
 </head>
 <body>
-    <h1>ASX DeMark Signals</h1>
+    <h1>US DM Signals</h1>
     <p>Last updated: {timestamp}</p>
 """
 
