@@ -260,7 +260,7 @@ def main():
     print_section("Daily Tops", daily_signals["Tops"])
     print_section("Weekly Tops", weekly_signals["Tops"])
 
-    write_html_report(now_str, daily_signals, weekly_signals, fg_val, fg_prev, fg_date)
+    write_html_report(daily_signals, weekly_signals, fg_val, fg_prev, fg_date)
 
 if __name__ == "__main__":
     main()
