@@ -4,8 +4,8 @@ import os
 from yahooquery import Ticker
 import requests  # 🔹 Added for CNN data fetch
 
-def fetch_asx200_tickers():
-    cache_file = "asx200_cache.txt"
+def fetch_tickers():
+    cache_file = "russell_cache.txt"
     if os.path.exists(cache_file):
         with open(cache_file, "r") as f:
             tickers = [line.strip() for line in f if line.strip()]
@@ -151,7 +151,7 @@ def write_html_report(timestamp, daily, weekly, fg_data):
         f.write(html)
 
 def main():
-    tickers = fetch_asx200_tickers()
+    tickers = fetch_tickers()
     now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 
     daily_signals = scan_timeframe(tickers, "1D", "1d")
