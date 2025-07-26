@@ -131,67 +131,108 @@ def get_fear_and_greed():
         return "N/A", "N/A", "N/A"
 
 
-def write_html_report(timestamp, daily, weekly, fg_val, fg_prev, fg_date):
-    sections = [
-        ("Daily Bottoms", daily["Bottoms"]),
-        ("Weekly Bottoms", weekly["Bottoms"]),
-        ("Daily Tops", daily["Tops"]),
-        ("Weekly Tops", weekly["Tops"]),
-    ]
+def write_html_report(sections, fg_index, fg_prev, fg_date, fg_history):
+    fg_color = "#28a745" if fg_index != "N/A" and float(fg_index) >= 50 else "#dc3545"
 
-    def fg_color(value):
-        try:
-            value = float(value)
-            if value < 25:
-                return "#ff4d4d"  # extreme fear
-            elif value < 50:
-                return "#ffa64d"  # fear
-            elif value < 75:
-                return "#b3ff66"  # greed
-            else:
-                return "#66ff66"  # extreme greed
-        except:
-            return "#ccc"
-
-    fg_html = f"""
-    <h2>CNN Fear & Greed Index</h2>
-    <p><strong>Date:</strong> {fg_date}</p>
-    <p><strong>Current:</strong> <span style='background:{fg_color(fg_val)};padding:4px;'>{fg_val}</span></p>
-    <p><strong>Previous Close:</strong> {fg_prev}</p>
+    html = f"""
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>DeMark Signal Report</title>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }}
+            h1 {{
+                color: #333;
+            }}
+            .fg-box {{
+                background-color: {fg_color};
+                color: white;
+                padding: 10px;
+                margin-bottom: 20px;
+                border-radius: 5px;
+                display: inline-block;
+            }}
+            .row {{
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 30px;
+            }}
+            .column {{
+                flex: 1;
+                margin: 0 10px;
+            }}
+            table {{
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }}
+            th, td {{
+                border: 1px solid #ccc;
+                padding: 6px 8px;
+                text-align: left;
+            }}
+            th {{
+                background-color: #f0f0f0;
+            }}
+            img {{
+                max-width: 400px;
+                margin-top: 10px;
+            }}
+        </style>
+    </head>
+    <body>
+        <h1>🧭 DeMark Signal Report</h1>
+        <div class="fg-box">
+            <strong>CNN Fear & Greed Index:</strong> {fg_index} (Prev: {fg_prev}) on {fg_date}
+        </div><br>
+        <img src="fear_and_greed_chart.png" alt="Fear & Greed Trend">
     """
 
-    html = f"""<html>
-<head>
-    <title>US DeMark Scanner</title>
-    <style>
-        body {{ font-family: Arial, sans-serif; padding: 2em; }}
-        h2 {{ border-bottom: 1px solid #ccc; }}
-        table {{ border-collapse: collapse; margin-bottom: 2em; }}
-        th, td {{ border: 1px solid #ddd; padding: 0.5em; }}
-        th {{ background-color: #f4f4f4; }}
-    </style>
-</head>
-<body>
-    <h1>US DeMark Scanner</h1>
-    <p>Last updated: {timestamp}</p>
-    {fg_html}
-"""
+    # Extract tables
+    daily_bottoms = sections.get("Daily Bottoms", "<p>No signals.</p>")
+    weekly_bottoms = sections.get("Weekly Bottoms", "<p>No signals.</p>")
+    daily_tops = sections.get("Daily Tops", "<p>No signals.</p>")
+    weekly_tops = sections.get("Weekly Tops", "<p>No signals.</p>")
 
-    for title, data in sections:
-        html += f"<h2>{title}</h2>"
-        if data:
-            html += "<table><tr><th>Ticker</th><th>Signal</th></tr>"
-            for ticker, signal in data:
-                html += f"<tr><td>{ticker}</td><td>{signal}</td></tr>"
-            html += "</table>"
-        else:
-            html += "<p>None</p>"
+    # Row 1: Bottoms
+    html += f"""
+    <div class="row">
+        <div class="column">
+            <h2>Daily Bottoms</h2>
+            {daily_bottoms}
+        </div>
+        <div class="column">
+            <h2>Weekly Bottoms</h2>
+            {weekly_bottoms}
+        </div>
+    </div>
+    """
 
-    html += "</body></html>"
+    # Row 2: Tops
+    html += f"""
+    <div class="row">
+        <div class="column">
+            <h2>Daily Tops</h2>
+            {daily_tops}
+        </div>
+        <div class="column">
+            <h2>Weekly Tops</h2>
+            {weekly_tops}
+        </div>
+    </div>
+    """
 
-    os.makedirs("docs", exist_ok=True)
-    with open("docs/index.html", "w") as f:
+    html += """
+    </body>
+    </html>
+    """
+
+    with open("docs/index.html", "w", encoding="utf-8") as f:
         f.write(html)
+
 
 def main():
     sp500 = fetch_tickers_from_cache("sp_cache.txt")
