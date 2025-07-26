@@ -1,4 +1,4 @@
-name: ASX DeMark Scan and Publish
+name: US DeMark Scan and Publish
 
 on:
   schedule:
