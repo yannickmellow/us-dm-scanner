@@ -83,9 +83,20 @@ def scan_timeframe(tickers, interval_label, interval):
             print(f"⚠️ Skipping {ticker} [{interval_label}] due to error: {e}")
 
     return results
+
+
 def get_fear_and_greed():
     url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
-    headers = {"User-Agent": "Mozilla/5.0"}
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/114.0.0.0 Safari/537.36"
+        ),
+        "Accept": "application/json",
+        "Referer": "https://edition.cnn.com/",
+    }
+
     try:
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
@@ -98,7 +109,6 @@ def get_fear_and_greed():
         fg_previous = round(fg_data.get("previous_close", 0))
         timestamp = fg_data.get("timestamp")
 
-        # Convert ISO timestamp to date
         if isinstance(timestamp, str):
             try:
                 date_obj = datetime.fromisoformat(timestamp)
@@ -106,7 +116,7 @@ def get_fear_and_greed():
                 date_obj = datetime.strptime(timestamp.split("+")[0], "%Y-%m-%dT%H:%M:%S")
             date = date_obj.strftime("%Y-%m-%d")
         else:
-            date = datetime.utcnow().strftime("%Y-%m-%d")  # fallback
+            date = datetime.utcnow().strftime("%Y-%m-%d")
 
         # log to CSV
         with open("fear_and_greed_history.csv", "a", newline="") as f:
@@ -119,6 +129,7 @@ def get_fear_and_greed():
     except Exception as e:
         print(f"⚠️ Error fetching Fear & Greed Index: {e}")
         return "N/A", "N/A", "N/A"
+
 
 def write_html_report(timestamp, daily, weekly, fg_val, fg_prev, fg_date):
     sections = [
