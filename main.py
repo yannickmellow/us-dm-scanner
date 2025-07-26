@@ -163,9 +163,22 @@ def signals_to_html_table(signals):
     if not signals:
         return "<p>No signals.</p>"
 
+    # Sort alphabetically by ticker
+    signals_sorted = sorted(signals, key=lambda x: x[0])
+
     html = "<table><tr><th>Ticker</th><th>Signal</th></tr>"
-    for ticker, signal in signals:
-        html += f"<tr><td>{ticker}</td><td>{signal}</td></tr>"
+    for ticker, signal in signals_sorted:
+        if signal == "DM9 Top":
+            style = "background-color: #f8d7da;"
+        elif signal == "DM13 Top":
+            style = "background-color: #f5c6cb; font-weight: bold;"
+        elif signal == "DM9 Bot":
+            style = "background-color: #d4edda;"
+        elif signal == "DM13 Bot":
+            style = "background-color: #c3e6cb; font-weight: bold;"
+        else:
+            style = ""
+        html += f"<tr><td>{ticker}</td><td style='{style}'>{signal}</td></tr>"
     html += "</table>"
     return html
 
