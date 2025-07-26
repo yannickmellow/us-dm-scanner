@@ -75,30 +75,40 @@ def scan_timeframe(tickers, interval_label, interval):
             DM9Top, DM13Top, DM9Bot, DM13Bot = compute_dm_signals(df)
 
             if DM9Top or DM13Top:
-                results["Tops"].append((ticker, "DM13Top" if DM13Top else "DM9Top"))
+                results["Tops"].append((ticker, "DM13 Top" if DM13Top else "DM9 Top"))
             if DM9Bot or DM13Bot:
-                results["Bottoms"].append((ticker, "DM13Bot" if DM13Bot else "DM9Bot"))
+                results["Bottoms"].append((ticker, "DM13 Bot" if DM13Bot else "DM9 Bot"))
 
         except Exception as e:
             print(f"⚠️ Skipping {ticker} [{interval_label}] due to error: {e}")
 
     return results
-
 def get_fear_and_greed():
     url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
     headers = {"User-Agent": "Mozilla/5.0"}
     try:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         data = response.json()
 
         print("🔍 Raw Fear & Greed Data:", data)
 
-        fg_value = data["fear_and_greed"]["score"]
-        fg_previous = data["fear_and_greed"]["previous_close"]
-        timestamp = data["fear_and_greed"]["timestamp"]
-        date = datetime.fromisoformat(timestamp.replace("Z", "+00:00")).strftime("%Y-%m-%d")
+        fg_data = data.get("fear_and_greed", {})
+        fg_value = round(fg_data.get("score", 0))
+        fg_previous = round(fg_data.get("previous_close", 0))
+        timestamp = fg_data.get("timestamp")
 
+        # Convert ISO timestamp to date
+        if isinstance(timestamp, str):
+            try:
+                date_obj = datetime.fromisoformat(timestamp)
+            except ValueError:
+                date_obj = datetime.strptime(timestamp.split("+")[0], "%Y-%m-%dT%H:%M:%S")
+            date = date_obj.strftime("%Y-%m-%d")
+        else:
+            date = datetime.utcnow().strftime("%Y-%m-%d")  # fallback
+
+        # log to CSV
         with open("fear_and_greed_history.csv", "a", newline="") as f:
             writer = csv.writer(f)
             if f.tell() == 0:
