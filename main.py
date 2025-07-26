@@ -5,6 +5,7 @@ from yahooquery import Ticker
 import requests
 import csv
 from collections import defaultdict
+import time
 
 def fetch_tickers_and_sectors_from_csv(cache_file):
     mapping = {}
@@ -278,18 +279,36 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     with open("docs/index.html", "w", encoding="utf-8") as f:
         f.write(html)
 
+
 def main():
+    start_time = time.time()
+    print("⏳ Starting DM Scanner")
+
+    # Step 1: Load ticker-sector maps
+    t0 = time.time()
     sp500_map = fetch_tickers_and_sectors_from_csv("sp_cache.csv")
     russell_map = fetch_tickers_and_sectors_from_csv("russell_cache.csv")
     nasdaq_map = fetch_tickers_and_sectors_from_csv("nasdaq_cache.csv")
     all_map = {**sp500_map, **russell_map, **nasdaq_map}
+    print(f"📁 Loaded ticker maps in {time.time() - t0:.2f} seconds")
 
+    # Step 2: Timestamp + Fear & Greed
+    t1 = time.time()
     now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
     fg_val, fg_prev, fg_date = get_fear_and_greed()
+    print(f"📊 Retrieved Fear & Greed Index in {time.time() - t1:.2f} seconds")
 
+    # Step 3: Daily signals
+    t2 = time.time()
     daily_results, daily_sectors = scan_timeframe(all_map, "1D", "1d")
-    weekly_results, weekly_sectors = scan_timeframe(all_map, "1W", "1wk")
+    print(f"📉 Scanned Daily signals in {time.time() - t2:.2f} seconds")
 
+    # Step 4: Weekly signals
+    t3 = time.time()
+    weekly_results, weekly_sectors = scan_timeframe(all_map, "1W", "1wk")
+    print(f"📈 Scanned Weekly signals in {time.time() - t3:.2f} seconds")
+
+    # Step 5: Display results
     def print_section(title, signals):
         print(f"\n🔸 {title}\n" + "-" * 40)
         if signals:
@@ -304,7 +323,15 @@ def main():
     print_section("Daily Tops", daily_results["Tops"])
     print_section("Weekly Tops", weekly_results["Tops"])
 
+    # Step 6: HTML output
+    t4 = time.time()
     write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_val, fg_prev, fg_date)
+    print(f"📝 HTML report written in {time.time() - t4:.2f} seconds")
+
+    # Total runtime
+    total_time = time.time() - start_time
+    print(f"\n✅ Script completed in {total_time:.2f} seconds")
 
 if __name__ == "__main__":
     main()
+
