@@ -1,21 +1,127 @@
-<html>
-<head>
-    <title>US DeMark Scanner</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 2em; }
-        h2 { border-bottom: 1px solid #ccc; }
-        table { border-collapse: collapse; margin-bottom: 2em; }
-        th, td { border: 1px solid #ddd; padding: 0.5em; }
-        th { background-color: #f4f4f4; }
-    </style>
-</head>
-<body>
-    <h1>US DeMark Scanner</h1>
-    <p>Last updated: 2025-07-26 09:03 UTC</p>
+
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>DeMark Signal Report</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }
+            h1 {
+                color: #333;
+            }
+            .fg-box {
+                background-color: #28a745;
+                color: white;
+                padding: 10px;
+                margin-bottom: 20px;
+                border-radius: 5px;
+                display: inline-block;
+            }
+            .row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 30px;
+            }
+            .column {
+                flex: 1;
+                margin: 0 10px;
+            }
+            table.signal-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+            table.signal-table th, table.signal-table td {
+                border: 1px solid #ccc;
+                padding: 6px 8px;
+                text-align: left;
+            }
+            table.signal-table th {
+                background-color: #f0f0f0;
+            }
+            img {
+                max-width: 400px;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>🧭 DeMark Signal Report</h1>
+        <div class="fg-box">
+            <strong>CNN Fear & Greed Index:</strong> 74 (Prev: 75) on 2025-07-25
+        </div><br>
+        <img src="fear_and_greed_chart.png" alt="Fear & Greed Trend">
     
-    <h2>CNN Fear & Greed Index</h2>
-    <p><strong>Date:</strong> 2025-07-25</p>
-    <p><strong>Current:</strong> <span style='background:#b3ff66;padding:4px;'>74</span></p>
-    <p><strong>Previous Close:</strong> 75</p>
+    <div class="row">
+        <div class="column">
+            <h2>Daily Bottoms</h2>
+            <p>No signals.</p>
+        </div>
+        <div class="column">
+            <h2>Weekly Bottoms</h2>
+            <p>No signals.</p>
+        </div>
+    </div>
     
-<h2>Daily Bottoms</h2><p>None</p><h2>Weekly Bottoms</h2><p>None</p><h2>Daily Tops</h2><table><tr><th>Ticker</th><th>Signal</th></tr><tr><td>ACAD</td><td>DM13 Top</td></tr><tr><td>FAST</td><td>DM13 Top</td></tr></table><h2>Weekly Tops</h2><table><tr><th>Ticker</th><th>Signal</th></tr><tr><td>WBA</td><td>DM13 Top</td></tr><tr><td>WBD</td><td>DM13 Top</td></tr><tr><td>WBD</td><td>DM13 Top</td></tr><tr><td>CSX</td><td>DM13 Top</td></tr><tr><td>OSK</td><td>DM13 Top</td></tr></table></body></html>
+    <div class="row">
+        <div class="column">
+            <h2>Daily Tops</h2>
+            <table class="dataframe signal-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Ticker</th>
+      <th>Signal</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ACAD</td>
+      <td>DM13 Top</td>
+    </tr>
+    <tr>
+      <td>FAST</td>
+      <td>DM13 Top</td>
+    </tr>
+  </tbody>
+</table>
+        </div>
+        <div class="column">
+            <h2>Weekly Tops</h2>
+            <table class="dataframe signal-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Ticker</th>
+      <th>Signal</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>WBA</td>
+      <td>DM13 Top</td>
+    </tr>
+    <tr>
+      <td>WBD</td>
+      <td>DM13 Top</td>
+    </tr>
+    <tr>
+      <td>WBD</td>
+      <td>DM13 Top</td>
+    </tr>
+    <tr>
+      <td>CSX</td>
+      <td>DM13 Top</td>
+    </tr>
+    <tr>
+      <td>OSK</td>
+      <td>DM13 Top</td>
+    </tr>
+  </tbody>
+</table>
+        </div>
+    </div>
+    
+    </body>
+    </html>
+    
