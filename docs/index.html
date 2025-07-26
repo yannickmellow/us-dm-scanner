@@ -28,22 +28,18 @@
                 flex: 1;
                 margin: 0 10px;
             }
-            table.signal-table {
+            table {
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 10px;
             }
-            table.signal-table th, table.signal-table td {
+            th, td {
                 border: 1px solid #ccc;
                 padding: 6px 8px;
                 text-align: left;
             }
-            table.signal-table th {
+            th {
                 background-color: #f0f0f0;
-            }
-            img {
-                max-width: 400px;
-                margin-top: 10px;
             }
         </style>
     </head>
@@ -52,73 +48,30 @@
         <div class="fg-box">
             <strong>CNN Fear & Greed Index:</strong> 74 (Prev: 75) on 2025-07-25
         </div><br>
-        <img src="fear_and_greed_chart.png" alt="Fear & Greed Trend">
     
     <div class="row">
         <div class="column">
             <h2>Daily Bottoms</h2>
-            <p>No signals.</p>
+            <table><tr><th>Ticker</th><th>Signal</th></tr><tr><td>UHS</td><td>DM9 Bot</td></tr><tr><td>HCA</td><td>DM9 Bot</td></tr></table>
+            <h3>Daily Bottoms by Sector</h3><table><tr><th>Sector</th><th>Count</th></tr><tr><td>Healthcare</td><td>2</td></tr></table>
         </div>
         <div class="column">
             <h2>Weekly Bottoms</h2>
             <p>No signals.</p>
+            <p>No sector data.</p>
         </div>
     </div>
     
     <div class="row">
         <div class="column">
             <h2>Daily Tops</h2>
-            <table class="dataframe signal-table">
-  <thead>
-    <tr style="text-align: right;">
-      <th>Ticker</th>
-      <th>Signal</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>ACAD</td>
-      <td>DM13 Top</td>
-    </tr>
-    <tr>
-      <td>FAST</td>
-      <td>DM13 Top</td>
-    </tr>
-  </tbody>
-</table>
+            <table><tr><th>Ticker</th><th>Signal</th></tr><tr><td>PPL</td><td>DM13 Top</td></tr><tr><td>FAST</td><td>DM13 Top</td></tr><tr><td>LNT</td><td>DM13 Top</td></tr><tr><td>XEL</td><td>DM13 Top</td></tr><tr><td>CMS</td><td>DM13 Top</td></tr><tr><td>PEG</td><td>DM13 Top</td></tr><tr><td>ETR</td><td>DM13 Top</td></tr><tr><td>SO</td><td>DM13 Top</td></tr><tr><td>WEC</td><td>DM13 Top</td></tr><tr><td>GL</td><td>DM9 Top</td></tr><tr><td>DTE</td><td>DM13 Top</td></tr><tr><td>FSLR</td><td>DM9 Top</td></tr><tr><td>SNPS</td><td>DM9 Top</td></tr></table>
+            <h3>Daily Tops by Sector</h3><table><tr><th>Sector</th><th>Count</th></tr><tr><td>Utilities</td><td>9</td></tr><tr><td>Technology</td><td>2</td></tr><tr><td>Industrials</td><td>1</td></tr><tr><td>Financial</td><td>1</td></tr></table>
         </div>
         <div class="column">
             <h2>Weekly Tops</h2>
-            <table class="dataframe signal-table">
-  <thead>
-    <tr style="text-align: right;">
-      <th>Ticker</th>
-      <th>Signal</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>WBA</td>
-      <td>DM13 Top</td>
-    </tr>
-    <tr>
-      <td>WBD</td>
-      <td>DM13 Top</td>
-    </tr>
-    <tr>
-      <td>WBD</td>
-      <td>DM13 Top</td>
-    </tr>
-    <tr>
-      <td>CSX</td>
-      <td>DM13 Top</td>
-    </tr>
-    <tr>
-      <td>OSK</td>
-      <td>DM13 Top</td>
-    </tr>
-  </tbody>
-</table>
+            <table><tr><th>Ticker</th><th>Signal</th></tr><tr><td>WBA</td><td>DM13 Top</td></tr><tr><td>WBD</td><td>DM13 Top</td></tr><tr><td>CSX</td><td>DM13 Top</td></tr><tr><td>FCX</td><td>DM13 Top</td></tr><tr><td>GLW</td><td>DM13 Top</td></tr><tr><td>ON</td><td>DM13 Top</td></tr><tr><td>BALL</td><td>DM13 Top</td></tr><tr><td>CSCO</td><td>DM13 Top</td></tr><tr><td>PEG</td><td>DM9 Top</td></tr><tr><td>EL</td><td>DM13 Top</td></tr><tr><td>C</td><td>DM13 Top</td></tr><tr><td>EMR</td><td>DM13 Top</td></tr><tr><td>STX</td><td>DM13 Top</td></tr><tr><td>RTX</td><td>DM13 Top</td></tr><tr><td>MPC</td><td>DM13 Top</td></tr><tr><td>ICE</td><td>DM13 Top</td></tr><tr><td>NDSN</td><td>DM13 Top</td></tr><tr><td>AMZN</td><td>DM13 Top</td></tr><tr><td>ORCL</td><td>DM13 Top</td></tr><tr><td>ECL</td><td>DM13 Top</td></tr><tr><td>NSC</td><td>DM13 Top</td></tr><tr><td>APD</td><td>DM13 Top</td></tr><tr><td>ROK</td><td>DM13 Top</td></tr><tr><td>CAT</td><td>DM13 Top</td></tr></table>
+            <h3>Weekly Tops by Sector</h3><table><tr><th>Sector</th><th>Count</th></tr><tr><td>Industrials</td><td>7</td></tr><tr><td>Technology</td><td>5</td></tr><tr><td>Basic Materials</td><td>3</td></tr><tr><td>Consumer Cyclical</td><td>2</td></tr><tr><td>Financial</td><td>2</td></tr><tr><td>Healthcare</td><td>1</td></tr><tr><td>Communication Services</td><td>1</td></tr><tr><td>Utilities</td><td>1</td></tr><tr><td>Consumer Defensive</td><td>1</td></tr><tr><td>Energy</td><td>1</td></tr></table>
         </div>
     </div>
     
