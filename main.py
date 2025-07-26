@@ -31,12 +31,10 @@ def get_fear_and_greed():
         response.raise_for_status()
         data = response.json()
 
-        print("🔍 Raw Fear & Greed Data:", data)  # Debug output
-
-        fg_value = data["fear_and_greed"]["now"]
-        fg_previous = data["fear_and_greed"]["previous_close"]
-        timestamp = data["fear_and_greed"]["timestamp"]
-        date = datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
+        fg_value = round(data["fear_and_greed"]["score"])
+        fg_previous = round(data["fear_and_greed"]["previous_close"])
+        timestamp_str = data["fear_and_greed"]["timestamp"]
+        date = datetime.datetime.fromisoformat(timestamp_str.replace("Z", "+00:00")).date().isoformat()
 
         # log to CSV
         with open("fear_and_greed_history.csv", "a", newline="") as f:
@@ -49,6 +47,7 @@ def get_fear_and_greed():
     except Exception as e:
         print(f"⚠️ Error fetching Fear & Greed Index: {e}")
         return "N/A", "N/A", "N/A"
+
 
 def generate_fear_and_greed_chart():
     dates, values = [], []
