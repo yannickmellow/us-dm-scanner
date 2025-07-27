@@ -278,7 +278,16 @@ def signals_to_html_table(signals):
 
 
 def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_index, fg_prev, fg_date):
-    fg_color = "#28a745" if fg_index != "N/A" and float(fg_index) >= 50 else "#dc3545"
+        if fg_index != "N/A":
+            fg_value = float(fg_index)
+            if fg_value >= 60:
+                fg_color = "#dc3545"  # Red (Greed)
+            elif fg_value >= 30:
+                fg_color = "#ffc107"  # Yellow (Neutral)
+            else:
+                fg_color = "#28a745"  # Green (Fear)
+        else:
+            fg_color = "#6c757d"  # Gray fallback if index is not available
 
     html = f"""
     <html>
