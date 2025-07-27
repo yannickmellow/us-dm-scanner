@@ -230,7 +230,11 @@ def plot_sector_trends(daily_sectors, weekly_sectors):
     plt.tight_layout()
 
     os.makedirs("docs", exist_ok=True)
-    plt.savefig("docs/sector_trends.png")
+    plt.savefig("docs/sector_trends.png", bbox_inches="tight")
+    if os.path.exists("docs/sector_trends.png"):
+        print("✅ sector_trends.png exists.")
+    else:
+        print("❌ Failed to save sector_trends.png.")
     plt.close()
     
 
@@ -356,7 +360,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
 
     html += """
     <h2 style="margin-top: 40px;">Sector Signal Trends</h2>
-        <img src="sector_trends.png" alt="Sector Trends" style="max-width: 100%;">
+    <img src="sector_trends.png" alt="Sector Trends" style="max-width: 100%;">
     """
 
     html += """
@@ -413,7 +417,6 @@ def main():
     print_section("Weekly Tops", weekly_results["Tops"])
 
     # Count signals by sector and plot chart
-    # sector_counts = count_signals_by_sector(daily_results, weekly_results, daily_sectors, weekly_sectors)
     plot_sector_trends(daily_sectors, weekly_sectors)
 
     # Step 6: HTML output
