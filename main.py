@@ -340,7 +340,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     """
 
 
-    <h2 style="margin-top: 40px;">📊 Sector Signal Trends</h2>
+    <h2 style="margin-top: 40px;">Sector Signal Trends</h2>
         <img src="sector_trends.png" alt="Sector Trends" style="max-width: 100%;">
 
 
