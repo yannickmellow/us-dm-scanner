@@ -399,7 +399,7 @@ def main():
 
     # Count signals by sector and plot chart
     sector_counts = count_signals_by_sector(daily_results, weekly_results, daily_sectors, weekly_sectors)
-    plot_sector_trends(sector_counts)
+    plot_sector_trends(daily_sectors, weekly_sectors)
 
     # Step 6: HTML output
     t4 = time.time()
