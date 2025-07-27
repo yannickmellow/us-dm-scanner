@@ -19,6 +19,19 @@
                 border-radius: 5px;
                 display: inline-block;
             }
+            .summary-table {
+                border-collapse: collapse;
+                margin: 20px 0;
+                width: 60%;
+            }
+            .summary-table th, .summary-table td {
+                border: 1px solid #ccc;
+                padding: 6px 10px;
+                text-align: center;
+            }
+            .summary-table th {
+                background-color: #f0f0f0;
+            }
             .row {
                 display: flex;
                 justify-content: space-between;
@@ -47,7 +60,26 @@
         <h1>🧭 DeMark Signal Report</h1>
         <div class="fg-box">
             <strong>CNN Fear & Greed Index:</strong> 74 (Prev: 75) on 2025-07-25
-        </div><br>
+        </div>
+
+        <h2>Signal Summary</h2>
+        <table class="summary-table">
+            <tr>
+                <th>Totals</th>
+                <th>Daily</th>
+                <th>Weekly</th>
+            </tr>
+            <tr>
+                <td><strong>Bottoms</strong></td>
+                <td>11 (1100.0%)</td>
+                <td>4 (400.0%)</td>
+            </tr>
+            <tr>
+                <td><strong>Tops</strong></td>
+                <td>17 (1700.0%)</td>
+                <td>55 (5500.0%)</td>
+            </tr>
+        </table>
     
     <div class="row">
         <div class="column">
@@ -77,7 +109,6 @@
     
     <h2 style="margin-top: 40px;">Sector Signal Trends</h2>
     <img src="sector_trends.png" alt="Sector Trends" style="max-width: 100%;">
-    
     </body>
     </html>
     
