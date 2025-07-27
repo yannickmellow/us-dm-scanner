@@ -1,6 +1,7 @@
 import pandas as pd
 from datetime import datetime, timedelta
 import os
+import pickle
 from yahooquery import Ticker
 import requests
 import csv
@@ -54,28 +55,51 @@ def compute_dm_signals(df):
 
     return DM9Top, DM13Top, DM9Bot, DM13Bot
 
+def load_or_fetch_price_data(tickers, interval, period, cache_key):
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    cache_file = f"price_cache_{cache_key}_{today}.pkl"
+
+    if os.path.exists(cache_file):
+        print(f"📦 Using cached data: {cache_file}")
+        with open(cache_file, "rb") as f:
+            return pickle.load(f)
+
+    print(f"🌐 Fetching fresh data for {cache_key}...")
+    all_data = {}
+    batch_size = 50
+
+    for i in range(0, len(tickers), batch_size):
+        batch = tickers[i:i + batch_size]
+        t = Ticker(batch)
+        batch_data = t.history(interval=interval, period=period)
+
+        if isinstance(batch_data, pd.DataFrame):
+            for ticker in batch:
+                if (ticker,) in batch_data.index:
+                    all_data[ticker] = batch_data.xs(ticker, level=0)
+        else:
+            print(f"⚠️ Unexpected format in batch {batch}: {type(batch_data)}")
+
+        time.sleep(1.5)
+
+    with open(cache_file, "wb") as f:
+        pickle.dump(all_data, f)
+
+    return all_data
+
 def scan_timeframe(ticker_sector_map, interval_label, interval):
     results = {"Tops": [], "Bottoms": []}
-    sector_counts = {
-        "Tops": defaultdict(int),
-        "Bottoms": defaultdict(int)
-    }
-
+    sector_counts = {"Tops": defaultdict(int), "Bottoms": defaultdict(int)}
     tickers = list(ticker_sector_map.keys())
     print(f"\n🔍 Scanning {len(tickers)} tickers on {interval_label} timeframe...")
 
-    for ticker in tickers:
-        try:
-            tk = Ticker(ticker)
-            period = '2y' if interval == '1wk' else '6mo'
-            hist = tk.history(period=period, interval=interval)
-            if hist.empty:
-                continue
+    period = '2y' if interval == '1wk' else '6mo'
+    price_data = load_or_fetch_price_data(tickers, interval, period, interval_label)
 
-            if isinstance(hist.index, pd.MultiIndex):
-                df = hist.xs(ticker, level=0)
-            else:
-                df = hist
+    for ticker, df in price_data.items():
+        try:
+            if df.empty:
+                continue
 
             df = df.reset_index()
             df.columns = [c.lower() for c in df.columns]
@@ -102,6 +126,9 @@ def scan_timeframe(ticker_sector_map, interval_label, interval):
 
         except Exception as e:
             print(f"⚠️ Skipping {ticker} [{interval_label}] due to error: {e}")
+
+    results["Tops"] = sorted(results["Tops"], key=lambda x: x[0])
+    results["Bottoms"] = sorted(results["Bottoms"], key=lambda x: x[0])
 
     return results, sector_counts
 
