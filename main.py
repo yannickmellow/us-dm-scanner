@@ -13,18 +13,22 @@ from collections import defaultdict
 
 def fetch_tickers_and_sectors_from_csv(cache_file):
     mapping = {}
+    industry_map = {}
     if os.path.exists(cache_file):
         with open(cache_file, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 ticker = row.get('Ticker')
                 sector = row.get('Sector')
-                if ticker and sector:
-                    mapping[ticker.strip()] = sector.strip()
+                industry = row.get('Industry')
+                if ticker:
+                    mapping[ticker.strip()] = sector.strip() if sector else "Unknown"
+                    industry_map[ticker.strip()] = industry.strip() if industry else "Unknown"
         print(f"✅ Loaded {len(mapping)} tickers & sectors from {cache_file}")
     else:
         print(f"❌ Cache file {cache_file} not found!")
-    return mapping
+    return mapping, industry_map
+
 
 
 def compute_dm_signals(df):
@@ -60,6 +64,7 @@ def compute_dm_signals(df):
     return DM9Top, DM13Top, DM9Bot, DM13Bot
 
 
+
 def load_or_fetch_price_data(tickers, interval, period, cache_key):
     today = datetime.utcnow().strftime("%Y-%m-%d")
     cache_file = f"price_cache_{cache_key}_{today}.pkl"
@@ -93,7 +98,7 @@ def load_or_fetch_price_data(tickers, interval, period, cache_key):
     return all_data
 
 
-def scan_timeframe(ticker_sector_map, interval_label, interval):
+def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, interval):
     results = {"Tops": [], "Bottoms": []}
     sector_counts = {"Tops": defaultdict(int), "Bottoms": defaultdict(int)}
     tickers = list(ticker_sector_map.keys())
@@ -119,15 +124,16 @@ def scan_timeframe(ticker_sector_map, interval_label, interval):
             DM9Top, DM13Top, DM9Bot, DM13Bot = compute_dm_signals(df)
 
             sector = ticker_sector_map.get(ticker, "Unknown")
+            industry = ticker_industry_map.get(ticker, "Unknown")
 
             if DM9Top or DM13Top:
                 signal = "DM13 Top" if DM13Top else "DM9 Top"
-                results["Tops"].append((ticker, signal))
+                results["Tops"].append((ticker, signal, industry))
                 sector_counts["Tops"][sector] += 1
 
             if DM9Bot or DM13Bot:
                 signal = "DM13 Bot" if DM13Bot else "DM9 Bot"
-                results["Bottoms"].append((ticker, signal))
+                results["Bottoms"].append((ticker, signal, industry))
                 sector_counts["Bottoms"][sector] += 1
 
         except Exception as e:
@@ -248,15 +254,14 @@ def sector_counts_to_html(title, sector_counts):
     html += "</table>"
     return html
 
+
 def signals_to_html_table(signals):
     if not signals:
         return "<p>No signals.</p>"
 
-    # Sort alphabetically by ticker
     signals_sorted = sorted(signals, key=lambda x: x[0])
-
-    html = "<table><tr><th>Ticker</th><th>Signal</th></tr>"
-    for ticker, signal in signals_sorted:
+    html = "<table><tr><th>Ticker</th><th>Signal</th><th>Industry</th></tr>"
+    for ticker, signal, industry in signals_sorted:
         if signal == "DM9 Top":
             style = "background-color: #f8d7da;"
         elif signal == "DM13 Top":
@@ -267,9 +272,10 @@ def signals_to_html_table(signals):
             style = "background-color: #c3e6cb; font-weight: bold;"
         else:
             style = ""
-        html += f"<tr><td>{ticker}</td><td style='{style}'>{signal}</td></tr>"
+        html += f"<tr><td>{ticker}</td><td style='{style}'>{signal}</td><td>{industry}</td></tr>"
     html += "</table>"
     return html
+
 
 def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_index, fg_prev, fg_date):
     fg_color = "#28a745" if fg_index != "N/A" and float(fg_index) >= 50 else "#dc3545"
@@ -379,10 +385,12 @@ def main():
 
     # Step 1: Load ticker-sector maps
     t0 = time.time()
-    sp500_map = fetch_tickers_and_sectors_from_csv("sp_cache.csv")
-    russell_map = fetch_tickers_and_sectors_from_csv("russell_cache.csv")
-    nasdaq_map = fetch_tickers_and_sectors_from_csv("nasdaq_cache.csv")
+    sp500_map, sp500_industry = fetch_tickers_and_sectors_from_csv("sp_cache.csv")
+    russell_map, russell_industry = fetch_tickers_and_sectors_from_csv("russell_cache.csv")
+    nasdaq_map, nasdaq_industry = fetch_tickers_and_sectors_from_csv("nasdaq_cache.csv")
+
     all_map = {**sp500_map, **russell_map, **nasdaq_map}
+    all_industry_map = {**sp500_industry, **russell_industry, **nasdaq_industry}
     print(f"📁 Loaded ticker maps in {time.time() - t0:.2f} seconds")
 
     # Step 2: Timestamp + Fear & Greed
@@ -393,12 +401,12 @@ def main():
 
     # Step 3: Daily signals
     t2 = time.time()
-    daily_results, daily_sectors = scan_timeframe(all_map, "1D", "1d")
+    daily_results, daily_sectors = scan_timeframe(all_map, all_industry_map, "1D", "1d")
     print(f"📉 Scanned Daily signals in {time.time() - t2:.2f} seconds")
 
     # Step 4: Weekly signals
     t3 = time.time()
-    weekly_results, weekly_sectors = scan_timeframe(all_map, "1W", "1wk")
+    weekly_results, weekly_sectors = scan_timeframe(all_map, all_industry_map, "1W", "1wk")
     print(f"📈 Scanned Weekly signals in {time.time() - t3:.2f} seconds")
 
     # Step 5: Display results
