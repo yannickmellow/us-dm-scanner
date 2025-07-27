@@ -289,6 +289,15 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     else:
         fg_color = "#6c757d"  # Gray fallback if index is not available
 
+    # Count totals
+    total_tickers = len(sp500_map) + len(russell_map) + len(nasdaq_map)
+    daily_bottoms = len(daily_results["Bottoms"])
+    weekly_bottoms = len(weekly_results["Bottoms"])
+    daily_tops = len(daily_results["Tops"])
+    weekly_tops = len(weekly_results["Tops"])
+
+    # Format percentages
+    def fmt_pct(count): return f"{(count / total_tickers * 100):.1f}%" if total_tickers else "0.0%"
 
     html = f"""
     <html>
@@ -310,6 +319,18 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 margin-bottom: 20px;
                 border-radius: 5px;
                 display: inline-block;
+            }}
+            .summary-table {{
+                margin: 20px 0;
+                border-collapse: collapse;
+            }}
+            .summary-table th, .summary-table td {{
+                border: 1px solid #ccc;
+                padding: 6px 10px;
+                text-align: center;
+            }}
+            .summary-table th {{
+                background-color: #f0f0f0;
             }}
             .row {{
                 display: flex;
@@ -339,7 +360,26 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         <h1>🧭 DeMark Signal Report</h1>
         <div class="fg-box">
             <strong>CNN Fear & Greed Index:</strong> {fg_index} (Prev: {fg_prev}) on {fg_date}
-        </div><br>
+        </div>
+
+        <h2>Signal Summary</h2>
+        <table class="summary-table">
+            <tr>
+                <th>Totals</th>
+                <th>Daily</th>
+                <th>Weekly</th>
+            </tr>
+            <tr>
+                <td><strong>Bottoms</strong></td>
+                <td>{daily_bottoms} ({fmt_pct(daily_bottoms)})</td>
+                <td>{weekly_bottoms} ({fmt_pct(weekly_bottoms)})</td>
+            </tr>
+            <tr>
+                <td><strong>Tops</strong></td>
+                <td>{daily_tops} ({fmt_pct(daily_tops)})</td>
+                <td>{weekly_tops} ({fmt_pct(weekly_tops)})</td>
+            </tr>
+        </table>
     """
 
     # Row 1: Bottoms
@@ -377,12 +417,12 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     html += """
     <h2 style="margin-top: 40px;">Sector Signal Trends</h2>
     <img src="sector_trends.png" alt="Sector Trends" style="max-width: 100%;">
-    """
-
-    html += """
     </body>
     </html>
     """
+
+    with open("docs/index.html", "w") as f:
+        f.write(html)
 
     os.makedirs("docs", exist_ok=True)
     with open("docs/index.html", "w", encoding="utf-8") as f:
