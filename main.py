@@ -413,7 +413,7 @@ def main():
     def print_section(title, signals):
         print(f"\n🔸 {title}\n" + "-" * 40)
         if signals:
-            df = pd.DataFrame(signals, columns=["Ticker", "Signal"])
+            df = pd.DataFrame(signals, columns=["Ticker", "Signal", "Industry"])
             print(df.to_string(index=False))
         else:
             print("None")
