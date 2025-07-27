@@ -34,27 +34,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}
     
-          git add docs/index.html fear_and_greed_history.csv
+          git add docs/index.html docs/sector_trends.png fear_and_greed_history.csv 
           git commit -m "🔄 Update report [auto]" || echo "No changes to commit"
     
           git pull --rebase origin main || echo "Nothing to pull or rebase"
           git push origin main
-
-
-
-    #  - name: ✅ Commit updated report
-    #    run: |
-    #      git config user.name "github-actions[bot]"
-    #      git config user.email "github-actions[bot]@users.noreply.github.com"
-    #      git add docs/index.html
-    #      git commit -m "🔄 Update report [auto]" || echo "No changes to commit"
-    #      git pull --rebase origin main
-    #      git push
-
-
-      # ✅ REMOVE this step below if using /docs on main
-      # - name: 🚀 Deploy to GitHub Pages
-      #   uses: peaceiris/actions-gh-pages@v3
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     publish_dir: ./docs
