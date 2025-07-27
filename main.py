@@ -277,7 +277,8 @@ def signals_to_html_table(signals):
     return html
 
 
-def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_index, fg_prev, fg_date, total_tickers):
+def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_index, fg_prev, fg_date):
+    # Determine color for Fear & Greed index
     if fg_index != "N/A":
         fg_value = float(fg_index)
         if fg_value >= 60:
@@ -287,17 +288,20 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         else:
             fg_color = "#28a745"  # Green (Fear)
     else:
-        fg_color = "#6c757d"  # Gray fallback if index is not available
+        fg_color = "#6c757d"  # Gray fallback
 
-    # Count totals
-    total_tickers = len(sp500_map) + len(russell_map) + len(nasdaq_map)
+    # Ticker counts
+    try:
+        from ticker_cache import sp500_map, russell_map, nasdaq_map  # or however your maps are imported
+        total_tickers = len(sp500_map) + len(russell_map) + len(nasdaq_map)
+    except:
+        total_tickers = 1  # Fallback to avoid ZeroDivisionError
+
+    # Signal counts
     daily_bottoms = len(daily_results["Bottoms"])
     weekly_bottoms = len(weekly_results["Bottoms"])
     daily_tops = len(daily_results["Tops"])
     weekly_tops = len(weekly_results["Tops"])
-
-    # Format percentages
-    def fmt_pct(count): return f"{(count / total_tickers * 100):.1f}%" if total_tickers else "0.0%"
 
     html = f"""
     <html>
@@ -321,8 +325,9 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 display: inline-block;
             }}
             .summary-table {{
-                margin: 20px 0;
                 border-collapse: collapse;
+                margin: 20px 0;
+                width: 60%;
             }}
             .summary-table th, .summary-table td {{
                 border: 1px solid #ccc;
@@ -362,32 +367,24 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             <strong>CNN Fear & Greed Index:</strong> {fg_index} (Prev: {fg_prev}) on {fg_date}
         </div>
 
-    daily_bottoms = len(daily_results["Bottoms"])
-    weekly_bottoms = len(weekly_results["Bottoms"])
-    daily_tops = len(daily_results["Tops"])
-    weekly_tops = len(weekly_results["Tops"])
-
-    html += f"""
-    <h2>Signal Summary</h2>
-    <table class="summary-table" style="border: 1px solid #ccc; margin-top: 10px; margin-bottom: 30px;">
-        <tr>
-            <th>Totals</th>
-            <th>Daily</th>
-            <th>Weekly</th>
-        </tr>
-        <tr>
-            <td><strong>Bottoms</strong></td>
-            <td>{daily_bottoms} ({daily_bottoms / total_tickers:.1%})</td>
-            <td>{weekly_bottoms} ({weekly_bottoms / total_tickers:.1%})</td>
-        </tr>
-        <tr>
-            <td><strong>Tops</strong></td>
-            <td>{daily_tops} ({daily_tops / total_tickers:.1%})</td>
-            <td>{weekly_tops} ({weekly_tops / total_tickers:.1%})</td>
-        </tr>
-    </table>
-    """
-
+        <h2>Signal Summary</h2>
+        <table class="summary-table">
+            <tr>
+                <th>Totals</th>
+                <th>Daily</th>
+                <th>Weekly</th>
+            </tr>
+            <tr>
+                <td><strong>Bottoms</strong></td>
+                <td>{daily_bottoms} ({daily_bottoms / total_tickers:.1%})</td>
+                <td>{weekly_bottoms} ({weekly_bottoms / total_tickers:.1%})</td>
+            </tr>
+            <tr>
+                <td><strong>Tops</strong></td>
+                <td>{daily_tops} ({daily_tops / total_tickers:.1%})</td>
+                <td>{weekly_tops} ({weekly_tops / total_tickers:.1%})</td>
+            </tr>
+        </table>
     """
 
     # Row 1: Bottoms
@@ -422,6 +419,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     </div>
     """
 
+    # Sector trend chart
     html += """
     <h2 style="margin-top: 40px;">Sector Signal Trends</h2>
     <img src="sector_trends.png" alt="Sector Trends" style="max-width: 100%;">
@@ -429,13 +427,10 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     </html>
     """
 
-    with open("docs/index.html", "w") as f:
-        f.write(html)
-
+    # Write HTML
     os.makedirs("docs", exist_ok=True)
     with open("docs/index.html", "w", encoding="utf-8") as f:
         f.write(html)
-
 
 def main():
     start_time = time.time()
