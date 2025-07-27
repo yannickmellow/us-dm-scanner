@@ -215,7 +215,7 @@ def plot_sector_trends(sector_counts):
         width = bar.get_width()
         plt.text(width + 0.5, bar.get_y() + bar.get_height()/2, str(int(width)), va='center')
 
-    plt.savefig("sector_trends.png")
+    plt.savefig("docs/sector_trends.png")
     plt.close()
     
 
