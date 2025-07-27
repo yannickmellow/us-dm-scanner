@@ -291,11 +291,11 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         fg_color = "#6c757d"  # Gray fallback
 
     # Ticker counts
-    try:
-        from ticker_cache import sp500_map, russell_map, nasdaq_map  # or however your maps are imported
-        total_tickers = len(sp500_map) + len(russell_map) + len(nasdaq_map)
-    except:
-        total_tickers = 1  # Fallback to avoid ZeroDivisionError
+  #  try:
+  #      from ticker_cache import sp500_map, russell_map, nasdaq_map  # or however your maps are imported
+  #      total_tickers = len(sp500_map) + len(russell_map) + len(nasdaq_map)
+  #  except:
+  #      total_tickers = 1  # Fallback to avoid ZeroDivisionError
 
     # Signal counts
     daily_bottoms = len(daily_results["Bottoms"])
@@ -376,13 +376,13 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             </tr>
             <tr>
                 <td><strong>Bottoms</strong></td>
-                <td>{daily_bottoms} ({daily_bottoms / total_tickers:.1%})</td>
-                <td>{weekly_bottoms} ({weekly_bottoms / total_tickers:.1%})</td>
+                <td>{daily_bottoms}</td>
+                <td>{weekly_bottoms}</td>
             </tr>
             <tr>
                 <td><strong>Tops</strong></td>
-                <td>{daily_tops} ({daily_tops / total_tickers:.1%})</td>
-                <td>{weekly_tops} ({weekly_tops / total_tickers:.1%})</td>
+                <td>{daily_tops}</td>
+                <td>{weekly_tops}</td>
             </tr>
         </table>
     """
