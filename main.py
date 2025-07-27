@@ -277,7 +277,7 @@ def signals_to_html_table(signals):
     return html
 
 
-def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_index, fg_prev, fg_date):
+def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_index, fg_prev, fg_date, total_tickers):
     if fg_index != "N/A":
         fg_value = float(fg_index)
         if fg_value >= 60:
@@ -438,6 +438,7 @@ def main():
     sp500_map, sp500_industry = fetch_tickers_and_sectors_from_csv("sp_cache.csv")
     russell_map, russell_industry = fetch_tickers_and_sectors_from_csv("russell_cache.csv")
     nasdaq_map, nasdaq_industry = fetch_tickers_and_sectors_from_csv("nasdaq_cache.csv")
+    total_tickers = len(sp500_map) + len(russell_map) + len(nasdaq_map)
 
     all_map = {**sp500_map, **russell_map, **nasdaq_map}
     all_industry_map = {**sp500_industry, **russell_industry, **nasdaq_industry}
@@ -479,7 +480,7 @@ def main():
 
     # Step 6: HTML output
     t4 = time.time()
-    write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_val, fg_prev, fg_date)
+    write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_val, fg_prev, fg_date, total_tickers)
     print(f"📝 HTML report written in {time.time() - t4:.2f} seconds")
 
     # Total runtime
