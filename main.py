@@ -277,7 +277,7 @@ def signals_to_html_table(signals):
     return html
 
 
-def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_index, fg_prev, fg_date):
+def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_index, fg_prev, fg_date, total_tickers):
     # Determine color for Fear & Greed index
     if fg_index != "N/A":
         fg_value = float(fg_index)
