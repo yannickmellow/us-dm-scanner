@@ -201,20 +201,35 @@ def count_signals_by_sector(daily_results, weekly_results, daily_sectors, weekly
     return dict(sorted(sector_counts.items(), key=lambda x: x[1], reverse=True))
 
 
-def plot_sector_trends(sector_counts):
-    sectors = list(sector_counts.keys())
-    counts = list(sector_counts.values())
+def plot_sector_trends(daily_sectors, weekly_sectors):
+    from collections import defaultdict
 
-    plt.figure(figsize=(12, 6))
-    bars = plt.barh(sectors, counts, color="skyblue")
+    all_sectors = set(daily_sectors["Tops"].keys()) | set(daily_sectors["Bottoms"].keys()) | \
+                  set(weekly_sectors["Tops"].keys()) | set(weekly_sectors["Bottoms"].keys())
+
+    sectors = sorted(all_sectors)
+    daily_counts = []
+    weekly_counts = []
+
+    for sector in sectors:
+        daily_total = daily_sectors["Tops"].get(sector, 0) + daily_sectors["Bottoms"].get(sector, 0)
+        weekly_total = weekly_sectors["Tops"].get(sector, 0) + weekly_sectors["Bottoms"].get(sector, 0)
+        daily_counts.append(daily_total)
+        weekly_counts.append(weekly_total)
+
+    x = range(len(sectors))
+    width = 0.35
+
+    plt.figure(figsize=(14, 8))
+    plt.barh([i - width/2 for i in x], daily_counts, height=width, label="Daily", color="lightcoral")
+    plt.barh([i + width/2 for i in x], weekly_counts, height=width, label="Weekly", color="skyblue")
+    plt.yticks(x, sectors)
     plt.xlabel("Number of Signals")
-    plt.title("DeMark Signal Count by Sector")
+    plt.title("Sector Signal Trends: Daily vs Weekly")
+    plt.legend()
     plt.tight_layout()
 
-    for bar in bars:
-        width = bar.get_width()
-        plt.text(width + 0.5, bar.get_y() + bar.get_height()/2, str(int(width)), va='center')
-
+    os.makedirs("docs", exist_ok=True)
     plt.savefig("docs/sector_trends.png")
     plt.close()
     
@@ -398,7 +413,7 @@ def main():
     print_section("Weekly Tops", weekly_results["Tops"])
 
     # Count signals by sector and plot chart
-    sector_counts = count_signals_by_sector(daily_results, weekly_results, daily_sectors, weekly_sectors)
+    # sector_counts = count_signals_by_sector(daily_results, weekly_results, daily_sectors, weekly_sectors)
     plot_sector_trends(daily_sectors, weekly_sectors)
 
     # Step 6: HTML output
