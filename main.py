@@ -362,24 +362,32 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             <strong>CNN Fear & Greed Index:</strong> {fg_index} (Prev: {fg_prev}) on {fg_date}
         </div>
 
-        <h2>Signal Summary</h2>
-        <table class="summary-table">
-            <tr>
-                <th>Totals</th>
-                <th>Daily</th>
-                <th>Weekly</th>
-            </tr>
-            <tr>
-                <td><strong>Bottoms</strong></td>
-                <td>{daily_bottoms} ({fmt_pct(daily_bottoms)})</td>
-                <td>{weekly_bottoms} ({fmt_pct(weekly_bottoms)})</td>
-            </tr>
-            <tr>
-                <td><strong>Tops</strong></td>
-                <td>{daily_tops} ({fmt_pct(daily_tops)})</td>
-                <td>{weekly_tops} ({fmt_pct(weekly_tops)})</td>
-            </tr>
-        </table>
+    daily_bottoms = len(daily_results["Bottoms"])
+    weekly_bottoms = len(weekly_results["Bottoms"])
+    daily_tops = len(daily_results["Tops"])
+    weekly_tops = len(weekly_results["Tops"])
+
+    html += f"""
+    <h2>Signal Summary</h2>
+    <table class="summary-table" style="border: 1px solid #ccc; margin-top: 10px; margin-bottom: 30px;">
+        <tr>
+            <th>Totals</th>
+            <th>Daily</th>
+            <th>Weekly</th>
+        </tr>
+        <tr>
+            <td><strong>Bottoms</strong></td>
+            <td>{daily_bottoms} ({daily_bottoms / total_tickers:.1%})</td>
+            <td>{weekly_bottoms} ({weekly_bottoms / total_tickers:.1%})</td>
+        </tr>
+        <tr>
+            <td><strong>Tops</strong></td>
+            <td>{daily_tops} ({daily_tops / total_tickers:.1%})</td>
+            <td>{weekly_tops} ({weekly_tops / total_tickers:.1%})</td>
+        </tr>
+    </table>
+    """
+
     """
 
     # Row 1: Bottoms
