@@ -7,6 +7,9 @@ import requests
 import csv
 from collections import defaultdict
 import time
+import matplotlib.pyplot as plt
+from collections import defaultdict
+
 
 def fetch_tickers_and_sectors_from_csv(cache_file):
     mapping = {}
@@ -22,6 +25,7 @@ def fetch_tickers_and_sectors_from_csv(cache_file):
     else:
         print(f"❌ Cache file {cache_file} not found!")
     return mapping
+
 
 def compute_dm_signals(df):
     close = df["close"].values
@@ -55,6 +59,7 @@ def compute_dm_signals(df):
 
     return DM9Top, DM13Top, DM9Bot, DM13Bot
 
+
 def load_or_fetch_price_data(tickers, interval, period, cache_key):
     today = datetime.utcnow().strftime("%Y-%m-%d")
     cache_file = f"price_cache_{cache_key}_{today}.pkl"
@@ -86,6 +91,7 @@ def load_or_fetch_price_data(tickers, interval, period, cache_key):
         pickle.dump(all_data, f)
 
     return all_data
+
 
 def scan_timeframe(ticker_sector_map, interval_label, interval):
     results = {"Tops": [], "Bottoms": []}
@@ -132,6 +138,7 @@ def scan_timeframe(ticker_sector_map, interval_label, interval):
 
     return results, sector_counts
 
+
 def get_fear_and_greed():
     url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
     headers = {
@@ -176,6 +183,41 @@ def get_fear_and_greed():
     except Exception as e:
         print(f"⚠️ Error fetching Fear & Greed Index: {e}")
         return "N/A", "N/A", "N/A"
+
+
+def count_signals_by_sector(daily_results, weekly_results, daily_sectors, weekly_sectors):
+    sector_counts = defaultdict(int)
+
+    for signal_list, sector_map in [
+        (daily_results["Bottoms"], daily_sectors),
+        (daily_results["Tops"], daily_sectors),
+        (weekly_results["Bottoms"], weekly_sectors),
+        (weekly_results["Tops"], weekly_sectors),
+    ]:
+        for ticker, _ in signal_list:
+            sector = sector_map.get(ticker, "Unknown")
+            sector_counts[sector] += 1
+
+    return dict(sorted(sector_counts.items(), key=lambda x: x[1], reverse=True))
+
+
+def plot_sector_trends(sector_counts):
+    sectors = list(sector_counts.keys())
+    counts = list(sector_counts.values())
+
+    plt.figure(figsize=(12, 6))
+    bars = plt.barh(sectors, counts, color="skyblue")
+    plt.xlabel("Number of Signals")
+    plt.title("DeMark Signal Count by Sector")
+    plt.tight_layout()
+
+    for bar in bars:
+        width = bar.get_width()
+        plt.text(width + 0.5, bar.get_y() + bar.get_height()/2, str(int(width)), va='center')
+
+    plt.savefig("sector_trends.png")
+    plt.close()
+    
 
 def sector_counts_to_html(title, sector_counts):
     if not sector_counts:
@@ -297,6 +339,11 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     </div>
     """
 
+
+    <h2 style="margin-top: 40px;">📊 Sector Signal Trends</h2>
+        <img src="sector_trends.png" alt="Sector Trends" style="max-width: 100%;">
+
+
     html += """
     </body>
     </html>
@@ -349,6 +396,10 @@ def main():
     print_section("Weekly Bottoms", weekly_results["Bottoms"])
     print_section("Daily Tops", daily_results["Tops"])
     print_section("Weekly Tops", weekly_results["Tops"])
+
+    # Count signals by sector and plot chart
+    sector_counts = count_signals_by_sector(daily_results, weekly_results, daily_sectors, weekly_sectors)
+    plot_sector_trends(sector_counts)
 
     # Step 6: HTML output
     t4 = time.time()
