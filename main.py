@@ -139,7 +139,7 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
                 sector_counts["Tops"][sector] += 1
 
             if DM9Bot or DM13Bot:
-                signal = "DM13 Bottom" if DM13Bot else "DM9 Bottom"
+                signal = "DM13 Bot" if DM13Bot else "DM9 Bot"
                 results["Bottoms"].append((ticker, signal, industry))
                 sector_counts["Bottoms"][sector] += 1
 
