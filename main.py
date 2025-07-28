@@ -74,10 +74,14 @@ def load_or_fetch_price_data(tickers, interval, period, cache_key):
     today = datetime.utcnow().strftime("%Y-%m-%d")
     cache_file = f"price_cache_{cache_key}_{today}.pkl"
 
+    print(f"📦 Looking for cache file: {cache_file}")  # <-- Add this
+
     if os.path.exists(cache_file):
         print(f"📦 Using cached data: {cache_file}")
         with open(cache_file, "rb") as f:
             return pickle.load(f)
+
+    print(f"🌐 Cache not found. Fetching fresh data for {cache_key}...")
 
     print(f"🌐 Fetching fresh data for {cache_key}...")
     all_data = {}
@@ -511,7 +515,7 @@ def main():
 
     # Step 1b: Load Sector ETF tickers
     sector_map, sector_industry = fetch_tickers_and_sectors_from_csv("sectors_cache.csv")
-    sector_results, _, _ = scan_timeframe(sector_map, sector_industry, "Sector", "1W")
+    sector_results, _, _ = scan_timeframe(sector_map, sector_industry, "Sector", "1D")
 
     # Step 2: Timestamp + Fear & Greed
     t1 = time.time()
