@@ -511,7 +511,7 @@ def main():
 
     # Step 1b: Load Sector ETF tickers
     sector_map, sector_industry = fetch_tickers_and_sectors_from_csv("sectors_cache.csv")
-    sector_results, _, _ = scan_timeframe(sector_map, sector_industry, "Sector", "1d")
+    sector_results, _, _ = scan_timeframe(sector_map, sector_industry, "Sector", "1W", "1wk")
 
     # Step 2: Timestamp + Fear & Greed
     t1 = time.time()
