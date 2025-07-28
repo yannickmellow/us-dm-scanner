@@ -101,6 +101,8 @@ def load_or_fetch_price_data(tickers, interval, period, cache_key):
 
         time.sleep(1.5)
 
+    print(f"💾 Saving fresh data to cache: {cache_file}")
+
     with open(cache_file, "wb") as f:
         pickle.dump(all_data, f)
 
