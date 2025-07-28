@@ -277,7 +277,46 @@ def signals_to_html_table(signals):
     return html
 
 
-def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_index, fg_prev, fg_date, total_tickers):
+def build_sector_signal_grid_html(sector_results):
+    # Predefined display names in grid layout
+    grid_labels = [
+        ["Technology", "Financials", "Communications", "Cons. Discretionary", "Energy", "Real Estate"],
+        ["Healthcare", "Regional Banks", "Industrials", "Cons. Staples", "Utilities", "Home Builders"],
+        ["Materials", "Gold", "Silver", "Bitcoin", "Ethereum", "Memes"]
+    ]
+
+    # Build sector signal mapping
+    sector_signals = {}
+    for signal_type, entries in sector_results.items():
+        for ticker, signal, industry in entries:
+            sector = industry  # Assuming industry field in sectors_cache maps to grid label
+            current = sector_signals.get(sector)
+            if current is None or ("DM13" in signal and "DM9" in current):
+                sector_signals[sector] = signal
+
+    # Render HTML grid
+    html = '<h2>Sector Signal Grid</h2><table class="signal-grid">'
+    for row in grid_labels:
+        html += "<tr>"
+        for label in row:
+            signal = sector_signals.get(label)
+            if signal == "DM9 Top":
+                style = "background-color: #f8d7da;"
+            elif signal == "DM13 Top":
+                style = "background-color: #f5c6cb; font-weight: bold;"
+            elif signal == "DM9 Bot":
+                style = "background-color: #d4edda;"
+            elif signal == "DM13 Bot":
+                style = "background-color: #c3e6cb; font-weight: bold;"
+            else:
+                style = "background-color: #f0f0f0;"
+            html += f'<td style="{style}">{label}</td>'
+        html += "</tr>"
+    html += "</table>"
+    return html
+
+
+def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_index, fg_prev, fg_date, total_tickers, sector_results):
     # Determine color for Fear & Greed index
     if fg_index != "N/A":
         fg_value = float(fg_index)
@@ -359,6 +398,17 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             th {{
                 background-color: #f0f0f0;
             }}
+             .signal-grid {{
+                border-collapse: collapse;
+                margin-bottom: 30px;
+            }}
+            .signal-grid td {{
+                border: 1px solid #ccc;
+                padding: 12px 14px;
+                text-align: center;
+                min-width: 100px;
+                font-weight: bold;
+            }}
         </style>
     </head>
     <body>
@@ -387,6 +437,9 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         </table>
     """
 
+    html += build_sector_signal_grid_html(sector_results)
+
+    
     # Row 1: Bottoms
     html += f"""
     <div class="row">
@@ -447,6 +500,10 @@ def main():
     all_industry_map = {**sp500_industry, **russell_industry, **nasdaq_industry}
     print(f"📁 Loaded ticker maps in {time.time() - t0:.2f} seconds")
 
+    # Step 1b: Load Sector ETF tickers
+    sector_map, sector_industry = fetch_tickers_and_sectors_from_csv("sectors_cache.csv")
+    sector_results, _ = scan_timeframe(sector_map, sector_industry, "Sector", "1d")
+
     # Step 2: Timestamp + Fear & Greed
     t1 = time.time()
     now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
@@ -483,7 +540,7 @@ def main():
 
     # Step 6: HTML output
     t4 = time.time()
-    write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_val, fg_prev, fg_date, total_tickers)
+    write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_val, fg_prev, fg_date, total_tickers, sector_results)
     print(f"📝 HTML report written in {time.time() - t4:.2f} seconds")
 
     # Total runtime
