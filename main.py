@@ -457,8 +457,8 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         </div>
         <div class="column">
             <h2>Weekly Bottoms</h2>
-            <p><em>Weekly signals last updated on {weekly_date}</em></p>
             {signals_to_html_table(weekly_results["Bottoms"])}
+            <p><em>Weekly signals last updated on {weekly_date}</em></p>
             {sector_counts_to_html("Weekly Bottoms by Sector", weekly_sectors["Bottoms"])}
         </div>
     </div>
@@ -474,8 +474,8 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         </div>
         <div class="column">
             <h2>Weekly Tops</h2>
-            <p><em>Weekly signals last updated on {weekly_date}</em></p>
             {signals_to_html_table(weekly_results["Tops"])}
+            <p><em>Weekly signals last updated on {weekly_date}</em></p>
             {sector_counts_to_html("Weekly Tops by Sector", weekly_sectors["Tops"])}
         </div>
     </div>
