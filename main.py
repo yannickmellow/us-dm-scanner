@@ -9,6 +9,7 @@ from collections import defaultdict
 import time
 import matplotlib.pyplot as plt
 from collections import defaultdict
+import pytz
 
 
 def fetch_tickers_and_sectors_from_csv(cache_file):
@@ -28,7 +29,6 @@ def fetch_tickers_and_sectors_from_csv(cache_file):
     else:
         print(f"❌ Cache file {cache_file} not found!")
     return mapping, industry_map
-
 
 
 def compute_dm_signals(df):
@@ -63,6 +63,11 @@ def compute_dm_signals(df):
 
     return DM9Top, DM13Top, DM9Bot, DM13Bot
 
+
+def is_friday_after_close():
+    eastern = pytz.timezone('US/Eastern')
+    now = datetime.now(eastern)
+    return now.weekday() == 4 and now.time() > datetime.strptime("16:30", "%H:%M").time()
 
 
 def load_or_fetch_price_data(tickers, interval, period, cache_key):
@@ -107,6 +112,7 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
     period = '2y' if interval == '1wk' else '6mo'
     price_data = load_or_fetch_price_data(tickers, interval, period, interval_label)
 
+    candle_date = None
     for ticker, df in price_data.items():
         try:
             if df.empty:
@@ -120,9 +126,10 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
                 today = datetime.utcnow().date()
                 if last_date >= today - timedelta(days=today.weekday()):
                     df = df.iloc[:-1]
+                if not candle_date:
+                    candle_date = df['date'].iloc[-1].strftime("%Y-%m-%d")
 
             DM9Top, DM13Top, DM9Bot, DM13Bot = compute_dm_signals(df)
-
             sector = ticker_sector_map.get(ticker, "Unknown")
             industry = ticker_industry_map.get(ticker, "Unknown")
 
@@ -132,7 +139,7 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
                 sector_counts["Tops"][sector] += 1
 
             if DM9Bot or DM13Bot:
-                signal = "DM13 Bot" if DM13Bot else "DM9 Bot"
+                signal = "DM13 Bottom" if DM13Bot else "DM9 Bottom"
                 results["Bottoms"].append((ticker, signal, industry))
                 sector_counts["Bottoms"][sector] += 1
 
@@ -142,7 +149,7 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
     results["Tops"] = sorted(results["Tops"], key=lambda x: x[0])
     results["Bottoms"] = sorted(results["Bottoms"], key=lambda x: x[0])
 
-    return results, sector_counts
+    return results, sector_counts, candle_date
 
 
 def get_fear_and_greed():
@@ -450,6 +457,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         </div>
         <div class="column">
             <h2>Weekly Bottoms</h2>
+            <p><em>Weekly signals last updated on {weekly_date}</em></p>
             {signals_to_html_table(weekly_results["Bottoms"])}
             {sector_counts_to_html("Weekly Bottoms by Sector", weekly_sectors["Bottoms"])}
         </div>
@@ -466,6 +474,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         </div>
         <div class="column">
             <h2>Weekly Tops</h2>
+            <p><em>Weekly signals last updated on {weekly_date}</em></p>
             {signals_to_html_table(weekly_results["Tops"])}
             {sector_counts_to_html("Weekly Tops by Sector", weekly_sectors["Tops"])}
         </div>
@@ -517,7 +526,14 @@ def main():
 
     # Step 4: Weekly signals
     t3 = time.time()
-    weekly_results, weekly_sectors = scan_timeframe(all_map, all_industry_map, "1W", "1wk")
+    WEEKLY_CACHE_FILE = "weekly_dm_cache.pkl"
+    if is_friday_after_close() or not os.path.exists(WEEKLY_CACHE_FILE):
+        weekly_results, weekly_sectors, weekly_date = scan_timeframe(all_map, all_industry_map, "1W", "1wk")
+        with open(WEEKLY_CACHE_FILE, "wb") as f:
+            pickle.dump((weekly_results, weekly_sectors, weekly_date), f)
+    else:
+        with open(WEEKLY_CACHE_FILE, "rb") as f:
+            weekly_results, weekly_sectors, weekly_date = pickle.load(f)
     print(f"📈 Scanned Weekly signals in {time.time() - t3:.2f} seconds")
 
     # Step 5: Display results
@@ -540,7 +556,7 @@ def main():
 
     # Step 6: HTML output
     t4 = time.time()
-    write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_val, fg_prev, fg_date, total_tickers, sector_results)
+    write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_val, fg_prev, fg_date, total_tickers, sector_results, weekly_date)
     print(f"📝 HTML report written in {time.time() - t4:.2f} seconds")
 
     # Total runtime
