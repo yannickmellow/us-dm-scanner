@@ -521,7 +521,7 @@ def main():
 
     # Step 3: Daily signals
     t2 = time.time()
-    daily_results, daily_sectors = scan_timeframe(all_map, all_industry_map, "1D", "1d")
+    daily_results, daily_sectors, _ = scan_timeframe(all_map, all_industry_map, "1D", "1d")
     print(f"📉 Scanned Daily signals in {time.time() - t2:.2f} seconds")
 
     # Step 4: Weekly signals
