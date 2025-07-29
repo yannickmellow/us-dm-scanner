@@ -2,7 +2,7 @@ name: US DeMark Scan and Publish
 
 on:
   schedule:
-    - cron: '0 21 * * 1-5'  # 5:00pm ET = 21:00 UTC, Mon-Fri
+    - cron: '30 22 * * 1-5'  # 5:00pm ET = 21:00 UTC, Mon-Fri
   workflow_dispatch:
 
 jobs:
@@ -13,10 +13,12 @@ jobs:
       - name: 📦 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 💾 Cache price data
+      - name: Cache price data
+        if: github.event_name != 'schedule'
         uses: actions/cache@v4
         with:
-          path: cache/
+          path: |
+            price_cache_*.pkl
           key: price-data-${{ runner.os }}-${{ github.run_id }}
           restore-keys: |
             price-data-${{ runner.os }}-
