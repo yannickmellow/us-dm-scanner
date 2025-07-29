@@ -13,11 +13,10 @@ jobs:
       - name: 📦 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache price data
+      - name: 💾 Cache price data
         uses: actions/cache@v4
         with:
-          path: |
-            price_cache_*.pkl
+          path: cache/
           key: price-data-${{ runner.os }}-${{ github.run_id }}
           restore-keys: |
             price-data-${{ runner.os }}-
