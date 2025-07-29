@@ -31,6 +31,9 @@ def fetch_tickers_and_sectors_from_csv(cache_file):
     return mapping, industry_map
 
 
+# Ensure cache folder exists early
+os.makedirs("cache", exist_ok=True)
+
 def compute_dm_signals(df):
     close = df["close"].values
     length = len(close)
@@ -72,16 +75,12 @@ def is_friday_after_close():
 
 def load_or_fetch_price_data(tickers, interval, period, cache_key):
     today = datetime.utcnow().strftime("%Y-%m-%d")
-    cache_file = f"price_cache_{cache_key}_{today}.pkl"
-
-    print(f"📦 Looking for cache file: {cache_file}")  # <-- Add this
+    cache_file = f"cache/price_cache_{cache_key}_{today}.pkl"
 
     if os.path.exists(cache_file):
         print(f"📦 Using cached data: {cache_file}")
         with open(cache_file, "rb") as f:
             return pickle.load(f)
-
-    print(f"🌐 Cache not found. Fetching fresh data for {cache_key}...")
 
     print(f"🌐 Fetching fresh data for {cache_key}...")
     all_data = {}
@@ -101,11 +100,10 @@ def load_or_fetch_price_data(tickers, interval, period, cache_key):
 
         time.sleep(1.5)
 
-    print(f"💾 Saving fresh data to cache: {cache_file}")
-
     with open(cache_file, "wb") as f:
         pickle.dump(all_data, f)
 
+    print(f"💾 Saved fresh data to cache: {cache_file}")
     return all_data
 
 
@@ -532,7 +530,7 @@ def main():
 
     # Step 4: Weekly signals
     t3 = time.time()
-    WEEKLY_CACHE_FILE = "weekly_dm_cache.pkl"
+    WEEKLY_CACHE_FILE = "cache/weekly_dm_cache.pkl"
     if is_friday_after_close() or not os.path.exists(WEEKLY_CACHE_FILE):
         weekly_results, weekly_sectors, weekly_date = scan_timeframe(all_map, all_industry_map, "1W", "1wk")
         with open(WEEKLY_CACHE_FILE, "wb") as f:
