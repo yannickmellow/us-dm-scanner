@@ -129,12 +129,16 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
             df.columns = [c.lower() for c in df.columns]
 
             if interval == '1wk':
-                df['date'] = pd.to_datetime(df['date'])  # ensure all date values are datetime
-                last_date = df['date'].iloc[-1]
+                last_date = pd.to_datetime(df['date'].iloc[-1])
+                if last_date.tzinfo is not None:
+                    last_date = last_date.tz_convert(None)  # drops timezone info
+
                 today = datetime.utcnow()
-                if last_date >= today - timedelta(days=today.weekday()):
+                start_of_week = today - timedelta(days=today.weekday())
+                if last_date >= start_of_week:
                     df = df.iloc[:-1]
-                if not candle_date and not df.empty:
+
+                if not candle_date:
                     candle_date = df['date'].iloc[-1].strftime("%Y-%m-%d")
 
 
