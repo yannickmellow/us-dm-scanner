@@ -75,7 +75,10 @@ def is_friday_after_close():
 
 def load_or_fetch_price_data(tickers, interval, period, cache_key):
     today = datetime.utcnow().strftime("%Y-%m-%d")
-    cache_file = f"cache/price_cache_{cache_key}_{today}.pkl"
+    cache_dir = "cache"
+    os.makedirs(cache_dir, exist_ok=True)
+    cache_file = os.path.join(cache_dir, f"price_cache_{cache_key}_{today}.pkl")
+
 
     if os.path.exists(cache_file):
         print(f"📦 Using cached data: {cache_file}")
