@@ -2,7 +2,7 @@ name: US DeMark Scan and Publish
 
 on:
   schedule:
-    - cron: '0 23 * * 1-5'  # 5:00pm ET = 21:00 UTC, Mon-Fri
+    - cron: '0 21 * * 1-5'  # 5:00pm ET = 21:00 UTC (6.30am ACST), Mon-Fri
   workflow_dispatch:
 
 jobs:
