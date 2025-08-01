@@ -1,15 +1,19 @@
 Ticker,Sector
-XLRE,Real Estate
 XLK,Technology
-XLY,Consumer Discretionary
-XLC,Communication Services
-XLB,Materials
-XLU,Utilities
-XLP,Consumer Staples
-XLI,Industrials
-XLV,Healthcare
-XLE,Energy
 XLF,Financials
-XBI,Biotechnology
+XLC,Communications
+XLY,Consumer Discretionary
+XLRE,Real Estate
 XHB,Home Builders
+XBI,Biotechnology
 KRE,Regional Banks
+XLV,Healthcare
+XLP,Consumer Staples
+XLE,Energy
+XLU,Utilities
+XLB,Materials
+XLI,Industrials
+PHYS, Gold
+PSLV, Silver
+IBIT, Bitcoin
+ETHA, Ethereum
