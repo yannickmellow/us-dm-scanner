@@ -145,7 +145,10 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
 
             DM9Top, DM13Top, DM9Bot, DM13Bot = compute_dm_signals(df)
             sector = ticker_sector_map.get(ticker, "Unknown")
-            industry = ticker_industry_map.get(ticker, "Unknown")
+            if interval_label == "Sector":
+                industry = ticker_sector_map.get(ticker, "Unknown")  # use Sector as Industry for sector ETFs
+            else:
+                industry = ticker_industry_map.get(ticker, "Unknown")
 
             if DM9Top or DM13Top:
                 signal = "DM13 Top" if DM13Top else "DM9 Top"
