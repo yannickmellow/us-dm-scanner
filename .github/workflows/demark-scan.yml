@@ -13,15 +13,16 @@ jobs:
       - name: 📦 Checkout repository
         uses: actions/checkout@v4
 
+      - name: List cache folder contents before caching
+        run: ls -la cache/
+
       - name: Cache price data
         if: github.event_name != 'schedule'
         uses: actions/cache@v4
         with:
-          path: |
-            price_cache_*.pkl
-          key: price-data-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: |
-            price-data-${{ runner.os }}-
+          path: cache/
+          key: price-data-${{ runner.os }}-latest
+          restore-keys: price-data-${{ runner.os }}-
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
