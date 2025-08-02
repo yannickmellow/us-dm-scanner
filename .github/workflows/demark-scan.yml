@@ -13,11 +13,7 @@ jobs:
       - name: 📦 Checkout repository
         uses: actions/checkout@v4
 
-      - name: List cache folder contents before caching
-        run: ls -la cache/
-
-      - name: Cache price data
-        if: github.event_name != 'schedule'
+      - name: Restore price data cache
         uses: actions/cache@v4
         with:
           path: cache/
@@ -36,7 +32,17 @@ jobs:
 
       - name: 🧠 Run DeMark scanner
         run: python main.py
+      
+      - name: List cache folder contents
+        run: ls -la cache/
 
+      - name: Save price data cache
+        uses: actions/cache@v4
+        with:
+          path: cache/
+          key: price-data-${{ runner.os }}-latest
+          restore-keys: price-data-${{ runner.os }}-
+          
       - name: ✅ Commit and push changes
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
