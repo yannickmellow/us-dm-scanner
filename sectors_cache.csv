@@ -5,17 +5,18 @@ XLC,Communications,Communications
 XLY,Discretionary,Discretionary
 XLRE,Real Estate,Real Estate
 XHB,Home Builders,Home Builders
-XBI,Biotechnology
-KRE,Regional Banks
-XLV,Healthcare
-XLP,Staples
+XBI,Biotechnology,Biotechnology
+KRE,Regional Banks,Regional Banks
+XLV,Healthcare,Healthcare
+XLP,Staples,Staples
 XLE,Energy,Energy
-SRE,Utilities
-XLB,Materials
-XLI,Industrials
-PHYS, Gold
-PSLV, Silver
-IBIT, Bitcoin
-ETHA, Ethereum
+SRE,Utilities,Utilities
+XLB,Materials,Materials
+XLI,Industrials,Industrials
+PHYS,Gold,Gold
+PSLV,Silver,Silver
+IBIT,Bitcoin,Bitcoin
+ETHA,Ethereum,Ethereum
+
 
 
