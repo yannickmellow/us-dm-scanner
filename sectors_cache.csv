@@ -1,15 +1,15 @@
-Ticker,Sector
-XLK,Technology
-XLF,Financials
-XLC,Communications
-XLY,Discretionary
-XLRE,Real Estate
-XHB,Home Builders
+Ticker,Sector,Industry
+XLK,Technology,Technology
+XLF,Financials,Financials
+XLC,Communications,Communications
+XLY,Discretionary,Discretionary
+XLRE,Real Estate,Real Estate
+XHB,Home Builders,Home Builders
 XBI,Biotechnology
 KRE,Regional Banks
 XLV,Healthcare
 XLP,Staples
-XLE,Energy
+XLE,Energy,Energy
 SRE,Utilities
 XLB,Materials
 XLI,Industrials
@@ -17,4 +17,5 @@ PHYS, Gold
 PSLV, Silver
 IBIT, Bitcoin
 ETHA, Ethereum
+
 
