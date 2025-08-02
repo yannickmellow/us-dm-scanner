@@ -510,6 +510,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     with open("docs/index.html", "w", encoding="utf-8") as f:
         f.write(html)
 
+
 def main():
     start_time = time.time()
     print("⏳ Starting DM Scanner")
@@ -528,6 +529,13 @@ def main():
     # Step 1b: Load Sector ETF tickers
     sector_map, sector_industry = fetch_tickers_and_sectors_from_csv("sectors_cache.csv")
     sector_results, _, _ = scan_timeframe(sector_map, sector_industry, "Sector", "1d")
+
+    # 🛠️ DEBUG: Show tickers and signals detected in sector scan
+    print("\n🔍 Sector Signal Results:")
+    for s in sector_results["Bottoms"]:
+        print(f"✅ Bottom: {s}")
+    for s in sector_results["Tops"]:
+        print(f"🔺 Top:    {s}")
 
     # Step 2: Timestamp + Fear & Greed
     t1 = time.time()
@@ -566,6 +574,10 @@ def main():
     print_section("Weekly Bottoms", weekly_results["Bottoms"])
     print_section("Daily Tops", daily_results["Tops"])
     print_section("Weekly Tops", weekly_results["Tops"])
+
+    # 🔎 Print sector summary explicitly
+    print_section("Sector Bottoms", sector_results["Bottoms"])
+    print_section("Sector Tops", sector_results["Tops"])
 
     # Count signals by sector and plot chart
     plot_sector_trends(daily_sectors, weekly_sectors)
