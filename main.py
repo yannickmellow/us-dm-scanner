@@ -34,6 +34,7 @@ def fetch_tickers_and_sectors_from_csv(cache_file):
 # Ensure cache folder exists early
 os.makedirs("cache", exist_ok=True)
 
+
 def compute_dm_signals(df):
     close = df["close"].values
     length = len(close)
@@ -298,21 +299,22 @@ def signals_to_html_table(signals):
 
 
 def build_sector_signal_grid_html(sector_results):
-    # Predefined display names in grid layout
     grid_labels = [
-        ["Technology", "Financials", "Communications", "Cons. Discretionary", "Energy", "Real Estate"],
-        ["Healthcare", "Regional Banks", "Industrials", "Cons. Staples", "Utilities", "Home Builders"],
-        ["Materials", "Gold", "Silver", "Bitcoin", "Ethereum", "Memes"]
+        ["Technology", "Financials", "Communications", "Discretionary", "Real Estate", "Home Builders"],
+        ["Biotechnology", "Regional Banks", "Healthcare", "Staples", "Energy", "Utilities"],
+        ["Materials", "Industrials", "Gold", "Silver", "Bitcoin", "Ethereum"]
     ]
 
-    # Build sector signal mapping
+    # Flatten grid labels into a set for matching
+    expected_labels = {label for row in grid_labels for label in row}
     sector_signals = {}
+
     for signal_type, entries in sector_results.items():
-        for ticker, signal, industry in entries:
-            sector = industry  # Assuming industry field in sectors_cache maps to grid label
-            current = sector_signals.get(sector)
-            if current is None or ("DM13" in signal and "DM9" in current):
-                sector_signals[sector] = signal
+        for ticker, signal, sector in entries:
+            if sector in expected_labels:
+                current = sector_signals.get(sector)
+                if current is None or ("DM13" in signal and "DM9" in current):
+                    sector_signals[sector] = signal
 
     # Render HTML grid
     html = '<h2>Sector Signal Grid</h2><table class="signal-grid">'
@@ -334,6 +336,7 @@ def build_sector_signal_grid_html(sector_results):
         html += "</tr>"
     html += "</table>"
     return html
+
 
 
 def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_index, fg_prev, fg_date, total_tickers, sector_results, weekly_date):
