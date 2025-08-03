@@ -326,9 +326,9 @@ def build_sector_signal_grid_html(sector_results):
         for label in row:
             signal = sector_signals.get(label)
             if signal == "DM9 Top":
-                style = "background-color: #f8d7da;"
+                style = "background-color: #ff9999;"
             elif signal == "DM13 Top":
-                style = "background-color: #f5c6cb; font-weight: bold;"
+                style = "background-color: #ff5050; font-weight: bold;"
             elif signal == "DM9 Bot":
                 style = "background-color: #d4edda;"
             elif signal == "DM13 Bot":
