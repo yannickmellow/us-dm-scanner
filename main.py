@@ -287,9 +287,9 @@ def signals_to_html_table(signals):
     html = "<table><tr><th>Ticker</th><th>Signal</th><th>Industry</th></tr>"
     for ticker, signal, industry in signals_sorted:
         if signal == "DM9 Top":
-            style = "background-color: #ff9999;"
+            style = "background-color: #ffb3b3;"
         elif signal == "DM13 Top":
-            style = "background-color: #f6666; font-weight: bold;"
+            style = "background-color: #ff8080; font-weight: bold;"
         elif signal == "DM9 Bot":
             style = "background-color: #d4edda;"
         elif signal == "DM13 Bot":
