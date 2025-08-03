@@ -186,7 +186,7 @@ def get_fear_and_greed():
         response.raise_for_status()
         data = response.json()
 
-        print("🔍 Raw Fear & Greed Data:", data)
+        # print("🔍 Raw Fear & Greed Data:", data)
 
         fg_data = data.get("fear_and_greed", {})
         fg_value = round(fg_data.get("score", 0))
