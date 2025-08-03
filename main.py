@@ -438,7 +438,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         </style>
     </head>
     <body>
-        <h1>🧭 DeMark Signal Report</h1>
+        <h1>🧭 US DM Dashboard</h1>
         <div class="fg-box">
             <strong>CNN Fear & Greed Index:</strong> {fg_index} (Prev: {fg_prev}) on {fg_date}
         </div>
