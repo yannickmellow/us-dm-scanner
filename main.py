@@ -553,14 +553,14 @@ def main():
 
     # Step 4: Weekly signals
     t3 = time.time()
-    WEEKLY_CACHE_FILE = "cache/weekly_dm_cache.pkl"
-    if is_friday_after_close() or not os.path.exists(WEEKLY_CACHE_FILE):
-        weekly_results, weekly_sectors, weekly_date = scan_timeframe(all_map, all_industry_map, "1W", "1wk")
-        with open(WEEKLY_CACHE_FILE, "wb") as f:
-            pickle.dump((weekly_results, weekly_sectors, weekly_date), f)
-    else:
-        with open(WEEKLY_CACHE_FILE, "rb") as f:
-            weekly_results, weekly_sectors, weekly_date = pickle.load(f)
+    # WEEKLY_CACHE_FILE = "cache/weekly_dm_cache.pkl"
+    # if is_friday_after_close() or not os.path.exists(WEEKLY_CACHE_FILE):
+    weekly_results, weekly_sectors, weekly_date = scan_timeframe(all_map, all_industry_map, "1W", "1wk")
+        # with open(WEEKLY_CACHE_FILE, "wb") as f:
+            # pickle.dump((weekly_results, weekly_sectors, weekly_date), f)
+    # else:
+        # with open(WEEKLY_CACHE_FILE, "rb") as f:
+            # weekly_results, weekly_sectors, weekly_date = pickle.load(f)
     print(f"📈 Scanned Weekly signals in {time.time() - t3:.2f} seconds")
 
     # Step 5: Display results
