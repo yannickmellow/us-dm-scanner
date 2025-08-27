@@ -134,10 +134,10 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
                 if last_date.tzinfo is not None:
                     last_date = last_date.tz_convert(None)  # drops timezone info
 
-                today = datetime.utcnow()
-                start_of_week = today - timedelta(days=today.weekday())
-                if last_date >= start_of_week:
-                    df = df.iloc[:-1]
+                # today = datetime.utcnow()
+                # start_of_week = today - timedelta(days=today.weekday())
+                # if last_date >= start_of_week:
+                #    df = df.iloc[:-1]
 
                 if not candle_date:
                     candle_date = df['date'].iloc[-1].strftime("%Y-%m-%d")
