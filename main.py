@@ -341,8 +341,44 @@ def build_sector_signal_grid_html(sector_results):
     return html
 
 
+def plot_fear_greed_trend(csv_path="fear_and_greed_history.csv",
+                          out_path="docs/fg_trend.png",
+                          lookback_days=120):
+    try:
+        if not os.path.exists(csv_path):
+            return None
+        df = pd.read_csv(csv_path)
+        if df.empty or "Date" not in df.columns or "Index" not in df.columns:
+            return None
 
-def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_index, fg_prev, fg_date, total_tickers, sector_results, weekly_date):
+        df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+        df = df.dropna(subset=["Date", "Index"]).sort_values("Date")
+
+        cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=lookback_days)
+        df = df[df["Date"] >= cutoff]
+        if df.empty:
+            return None
+
+        plt.figure(figsize=(6, 2.2))
+        plt.plot(df["Date"], df["Index"])
+        plt.title("CNN Fear & Greed (last ~120 days)")
+        plt.xlabel("Date")
+        plt.ylabel("Index")
+        plt.tight_layout()
+        os.makedirs("docs", exist_ok=True)
+        plt.savefig(out_path, bbox_inches="tight")
+        plt.close()
+
+        return out_path if os.path.exists(out_path) else None
+    except Exception as e:
+        print(f"⚠️ Could not plot Fear & Greed trend: {e}")
+        return None
+
+
+def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors,
+                      fg_index, fg_prev, fg_date, total_tickers, sector_results,
+                      weekly_date, fg_plot_path=None, report_date_str=None):
+    
     # Determine color for Fear & Greed index
     if fg_index != "N/A":
         fg_value = float(fg_index)
@@ -355,12 +391,6 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     else:
         fg_color = "#6c757d"  # Gray fallback
 
-    # Ticker counts
-  #  try:
-  #      from ticker_cache import sp500_map, russell_map, nasdaq_map  # or however your maps are imported
-  #      total_tickers = len(sp500_map) + len(russell_map) + len(nasdaq_map)
-  #  except:
-  #      total_tickers = 1  # Fallback to avoid ZeroDivisionError
 
     # Signal counts
     daily_bottoms = len(daily_results["Bottoms"])
@@ -372,7 +402,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     <html>
     <head>
         <meta charset="UTF-8">
-        <title>DeMark Signal Report</title>
+        <title>US DM Dashboard</title>
         <style>
             body {{
                 font-family: Arial, sans-serif;
@@ -380,6 +410,13 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             }}
             h1 {{
                 color: #333;
+                display: flex;
+                align-items: baseline;
+                gap: 12px;
+            }}
+            .date-badge {{
+                font-size: 0.85em;
+                color: #666;
             }}
             .fg-box {{
                 background-color: {fg_color};
@@ -438,10 +475,12 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         </style>
     </head>
     <body>
-        <h1>🧭 US DM Dashboard</h1>
+        <h1>📈 US DM Dashboard 📉 <span class="date-badge">{report_date_str or ''}</span></h1>
         <div class="fg-box">
             <strong>CNN Fear & Greed Index:</strong> {fg_index} (Prev: {fg_prev}) on {fg_date}
         </div>
+        {f'<img src="fg_trend.png" alt="Fear & Greed Trend" style="max-width: 480px; display:block; margin:6px 0 16px 0;">' if fg_plot_path else ''}
+
 
         <h2>Signal Summary</h2>
         <table class="summary-table">
@@ -544,11 +583,12 @@ def main():
     t1 = time.time()
     now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
     fg_val, fg_prev, fg_date = get_fear_and_greed()
+    fg_plot_path = plot_fear_greed_trend()
     print(f"📊 Retrieved Fear & Greed Index in {time.time() - t1:.2f} seconds")
 
     # Step 3: Daily signals
     t2 = time.time()
-    daily_results, daily_sectors, _ = scan_timeframe(all_map, all_industry_map, "1D", "1d")
+    daily_results, daily_sectors, daily_date = scan_timeframe(all_map, all_industry_map, "1D", "1d")
     print(f"📉 Scanned Daily signals in {time.time() - t2:.2f} seconds")
 
     # Step 4: Weekly signals
@@ -563,6 +603,8 @@ def main():
             # weekly_results, weekly_sectors, weekly_date = pickle.load(f)
     print(f"📈 Scanned Weekly signals in {time.time() - t3:.2f} seconds")
 
+    report_date_str = f"Signals for close of trade on: {daily_date}"
+    
     # Step 5: Display results
     def print_section(title, signals):
         print(f"\n🔸 {title}\n" + "-" * 40)
@@ -587,7 +629,11 @@ def main():
 
     # Step 6: HTML output
     t4 = time.time()
-    write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors, fg_val, fg_prev, fg_date, total_tickers, sector_results, weekly_date)
+    write_html_report(
+        daily_results, weekly_results, daily_sectors, weekly_sectors, fg_val, fg_prev, fg_date, total_tickers, sector_results, weekly_date,
+        fg_plot_path=fg_plot_path,
+        report_date_str = report_date_str
+    )
     print(f"📝 HTML report written in {time.time() - t4:.2f} seconds")
 
     # Total runtime
