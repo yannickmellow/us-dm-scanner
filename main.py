@@ -129,6 +129,8 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
             df = df.reset_index()
             df.columns = [c.lower() for c in df.columns]
 
+            last_close = float(df['close'].iloc[-1])
+
             if interval == '1wk':
                 last_date = pd.to_datetime(df['date'].iloc[-1])
                 if getattr(last_date, "tzinfo", None) is not None:
@@ -174,12 +176,12 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
 
             if DM9Top or DM13Top:
                 signal = "DM13 Top" if DM13Top else "DM9 Top"
-                results["Tops"].append((ticker, signal, industry))
+                results["Tops"].append((ticker, signal, industry, last_close))
                 sector_counts["Tops"][sector] += 1
 
             if DM9Bot or DM13Bot:
                 signal = "DM13 Bot" if DM13Bot else "DM9 Bot"
-                results["Bottoms"].append((ticker, signal, industry))
+                results["Bottoms"].append((ticker, signal, industry, last_close))
                 sector_counts["Bottoms"][sector] += 1
 
         except Exception as e:
@@ -249,7 +251,7 @@ def count_signals_by_sector(daily_results, weekly_results, daily_sectors, weekly
         (weekly_results["Bottoms"], weekly_sectors),
         (weekly_results["Tops"], weekly_sectors),
     ]:
-        for ticker, _ in signal_list:
+        for ticker, *_ in signal_list:
             sector = sector_map.get(ticker, "Unknown")
             sector_counts[sector] += 1
 
@@ -308,9 +310,12 @@ def signals_to_html_table(signals):
     if not signals:
         return "<p>No signals.</p>"
 
+    # sort by ticker
     signals_sorted = sorted(signals, key=lambda x: x[0])
-    html = "<table><tr><th>Ticker</th><th>Signal</th><th>Industry</th></tr>"
-    for ticker, signal, industry in signals_sorted:
+
+    # build header with new column order
+    html = "<table><tr><th>Ticker</th><th>Last Close</th><th>Signal</th><th>Industry</th></tr>"
+    for ticker, signal, industry, price in signals_sorted:
         if signal == "DM9 Top":
             style = "background-color: #ffb3b3;"
         elif signal == "DM13 Top":
@@ -321,7 +326,16 @@ def signals_to_html_table(signals):
             style = "background-color: #c3e6cb; font-weight: bold;"
         else:
             style = ""
-        html += f"<tr><td>{ticker}</td><td style='{style}'>{signal}</td><td>{industry}</td></tr>"
+
+        # ticker, price, signal, industry
+        html += (
+            f"<tr>"
+            f"<td>{ticker}</td>"
+            f"<td>{price:.2f}</td>"
+            f"<td style='{style}'>{signal}</td>"
+            f"<td>{industry}</td>"
+            f"</tr>"
+        )
     html += "</table>"
     return html
 
@@ -338,7 +352,7 @@ def build_sector_signal_grid_html(sector_results):
     sector_signals = {}
 
     for signal_type, entries in sector_results.items():
-        for ticker, signal, sector in entries:
+        for ticker, signal, sector, _ in entries:
             if sector in expected_labels:
                 current = sector_signals.get(sector)
                 if current is None or ("DM13" in signal and "DM9" in current):
@@ -391,11 +405,13 @@ def plot_fear_greed_trend(csv_path="fear_and_greed_history.csv",
         df_plot = df.copy()
         df_plot["Date"] = df_plot["Date"].dt.tz_localize(None)
 
-        plt.figure(figsize=(6, 2.2))
+        plt.figure(figsize=(9, 4.4))
         plt.plot(df_plot["Date"], df_plot["Index"])
         plt.title("CNN Fear & Greed (last ~120 days)")
         plt.xlabel("Date")
         plt.ylabel("Index")
+        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
+        plt.gcf().autofmt_xdate(rotation=45)
         plt.tight_layout()
         os.makedirs("docs", exist_ok=True)
         plt.savefig(out_path, bbox_inches="tight")
@@ -645,7 +661,8 @@ def main():
     def print_section(title, signals):
         print(f"\n🔸 {title}\n" + "-" * 40)
         if signals:
-            df = pd.DataFrame(signals, columns=["Ticker", "Signal", "Industry"])
+            df = pd.DataFrame(signals, columns=["Ticker", "Signal", "Industry", "Last Close"])
+            df = df[["Ticker", "Last Close", "Signal", "Industry"]]
             print(df.to_string(index=False))
         else:
             print("None")
