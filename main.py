@@ -347,20 +347,27 @@ def plot_fear_greed_trend(csv_path="fear_and_greed_history.csv",
     try:
         if not os.path.exists(csv_path):
             return None
+
         df = pd.read_csv(csv_path)
         if df.empty or "Date" not in df.columns or "Index" not in df.columns:
             return None
 
-        df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+        # Make Date UTC-aware for safe comparisons
+        df["Date"] = pd.to_datetime(df["Date"], utc=True, errors="coerce")
         df = df.dropna(subset=["Date", "Index"]).sort_values("Date")
 
-        cutoff = pd.Timestamp.utcnow() - pd.Timedelta(days=lookback_days)
+        # Use UTC-aware cutoff
+        cutoff = pd.Timestamp.now(tz=pytz.UTC) - pd.Timedelta(days=lookback_days)
         df = df[df["Date"] >= cutoff]
         if df.empty:
             return None
 
+        # For plotting, remove tz info (matplotlib is happier with naive)
+        df_plot = df.copy()
+        df_plot["Date"] = df_plot["Date"].dt.tz_localize(None)
+
         plt.figure(figsize=(6, 2.2))
-        plt.plot(df["Date"], df["Index"])
+        plt.plot(df_plot["Date"], df_plot["Index"])
         plt.title("CNN Fear & Greed (last ~120 days)")
         plt.xlabel("Date")
         plt.ylabel("Index")
@@ -414,8 +421,9 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 align-items: baseline;
                 gap: 12px;
             }}
-            .date-badge {{
-                font-size: 0.85em;
+            .date-subtitle {{
+                margin-top: 4px;
+                font-size: 0.65em;
                 color: #666;
             }}
             .fg-box {{
@@ -475,7 +483,8 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         </style>
     </head>
     <body>
-        <h1>📈 US DM Dashboard 📉 <span class="date-badge">{report_date_str or ''}</span></h1>
+        <h1>📈 US DM Dashboard 📉 </h1>
+        {f'<div class="date-subtitle">{report_date_str}</div>' if report_date_str else ''}
         <div class="fg-box">
             <strong>CNN Fear & Greed Index:</strong> {fg_index} (Prev: {fg_prev}) on {fg_date}
         </div>
@@ -603,7 +612,8 @@ def main():
             # weekly_results, weekly_sectors, weekly_date = pickle.load(f)
     print(f"📈 Scanned Weekly signals in {time.time() - t3:.2f} seconds")
 
-    report_date_str = f"Signals for close of trade on: {daily_date}"
+    daily_date_friendly = datetime.strptime(daily_date, "%Y-%m-%d").strftime("%A, %b %d, %Y")
+    report_date_str = f"Signals for close of trade on: {daily_date_friendly}"
     
     # Step 5: Display results
     def print_section(title, signals):
