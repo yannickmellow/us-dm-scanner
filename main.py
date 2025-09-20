@@ -315,7 +315,7 @@ def signals_to_html_table(signals):
     signals_sorted = sorted(signals, key=lambda x: x[0])
 
     # build header with new column order
-    html = "<table><tr><th>Ticker</th><th>Last Close</th><th>Signal</th><th>Industry</th></tr>"
+    html = "<table class='sortable'><tr><th>Ticker</th><th>Last Close</th><th>Signal</th><th>Industry</th></tr>"
     for ticker, signal, industry, price in signals_sorted:
         if signal == "DM9 Top":
             style = "background-color: #ffb3b3;"
@@ -523,8 +523,28 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 min-width: 100px;
                 font-weight: bold;
             }}
+            .sortable th {{
+                background-color: #f0f0f0;
+                cursor: pointer;
+                color: #007bff;         /* link-like blue */
+                text-decoration: underline;  /* underline like hyperlinks */
+            }}
+            .sortable th:hover {{
+                color: #0056b3;         /* darker blue on hover */
+            }}
+            .sortable th.asc::after {{
+                content: " ▲";
+                font-size: 0.8em;
+                color: #333;
+            }}
+            .sortable th.desc::after {{
+                content: " ▼";
+                font-size: 0.8em;
+                color: #333;
+            }}
         </style>
     </head>
+    
     <body>
         <h1>📈 US DM Dashboard 📉 </h1>
         {f'<div class="date-subtitle">{report_date_str}</div>' if report_date_str else ''}
@@ -591,10 +611,51 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     </div>
     """
 
-    # Sector trend chart
+    # JS for table sorting
     html += """
-    <h2 style="margin-top: 40px;">Sector Signal Trends</h2>
-    <img src="sector_trends.png" alt="Sector Trends" style="max-width: 100%;">
+    <script>
+    document.querySelectorAll("table.sortable").forEach(table => {
+      const headers = table.querySelectorAll("th");
+      headers.forEach((header, i) => {
+        header.style.cursor = "pointer";
+        header.addEventListener("click", () => {
+          const rows = Array.from(table.querySelectorAll("tr:nth-child(n+2)"));
+
+          // Clear sort indicators on all headers
+          headers.forEach(h => h.classList.remove("asc", "desc"));
+
+          // Toggle sort direction for this header
+          const asc = !header.classList.contains("asc");
+          header.classList.add(asc ? "asc" : "desc");
+
+          // Sort rows
+          rows.sort((a, b) => {
+            const aText = a.cells[i].innerText.trim();
+            const bText = b.cells[i].innerText.trim();
+            const aNum = parseFloat(aText.replace(/[^0-9.-]/g, ""));
+            const bNum = parseFloat(bText.replace(/[^0-9.-]/g, ""));
+            if (!isNaN(aNum) && !isNaN(bNum)) {
+              return asc ? aNum - bNum : bNum - aNum;
+            } else {
+              return asc
+                ? aText.localeCompare(bText)
+                : bText.localeCompare(aText);
+            }
+          });
+
+          // Reattach rows in new order
+          rows.forEach(r => table.tBodies[0].appendChild(r));
+        });
+      });
+    });
+    </script>
+    """
+                      
+    # Sector trend chart
+    # html += """
+    # <h2 style="margin-top: 40px;">Sector Signal Trends</h2>
+    # <img src="sector_trends.png" alt="Sector Trends" style="max-width: 100%;">
+    
     </body>
     </html>
     """
