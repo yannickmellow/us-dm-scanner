@@ -614,10 +614,20 @@ def main():
     sp500_map, sp500_industry = fetch_tickers_and_sectors_from_csv("sp_cache.csv")
     russell_map, russell_industry = fetch_tickers_and_sectors_from_csv("russell_cache.csv")
     nasdaq_map, nasdaq_industry = fetch_tickers_and_sectors_from_csv("nasdaq_cache.csv")
-    total_tickers = len(sp500_map) + len(russell_map) + len(nasdaq_map)
+    NDQ_map, NDQ_industry = fetch_tickers_and_sectors_from_csv("NDQ_cache.csv")
+    AMEX_map, AMEX_industry = fetch_tickers_and_sectors_from_csv("AMEX_cache.csv")
+    NYSE_map, NYSE_industry = fetch_tickers_and_sectors_from_csv("NYSE_cache.csv")
+    total_tickers = (
+        len(sp500_map) 
+        + len(russell_map) 
+        + len(nasdaq_map) 
+        + len(NDQ_map) 
+        + len(AMEX_map) 
+        + len(NYSE_map)
+    )
 
-    all_map = {**sp500_map, **russell_map, **nasdaq_map}
-    all_industry_map = {**sp500_industry, **russell_industry, **nasdaq_industry}
+    all_map = {**sp500_map, **russell_map, **nasdaq_map, **NDQ_map, **AMEX_map, **NYSE_map}
+    all_industry_map = {**sp500_industry, **russell_industry, **nasdaq_industry, **NDQ_industry, **AMEX_industry, **NYSE_industry}
     print(f"📁 Loaded ticker maps in {time.time() - t0:.2f} seconds")
 
     # Step 1b: Load Sector ETF tickers
