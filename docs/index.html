@@ -2,7 +2,7 @@
     <html>
     <head>
         <meta charset="UTF-8">
-        <title>DeMark Signal Report</title>
+        <title>US DM Dashboard</title>
         <style>
             body {
                 font-family: Arial, sans-serif;
@@ -10,6 +10,13 @@
             }
             h1 {
                 color: #333;
+                display: flex;
+                align-items: baseline;
+                gap: 12px;
+            }
+            .date-badge {
+                font-size: 0.85em;
+                color: #666;
             }
             .fg-box {
                 background-color: #dc3545;
@@ -68,10 +75,12 @@
         </style>
     </head>
     <body>
-        <h1>🧭 US DM Dashboard</h1>
+        <h1>📈 US DM Dashboard 📉 <span class="date-badge">Signals for close of trade on: None</span></h1>
         <div class="fg-box">
             <strong>CNN Fear & Greed Index:</strong> 62 (Prev: 62) on 2025-09-19
         </div>
+        
+
 
         <h2>Signal Summary</h2>
         <table class="summary-table">
