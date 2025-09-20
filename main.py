@@ -187,9 +187,9 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
 
     results["Tops"] = sorted(results["Tops"], key=lambda x: x[0])
     results["Bottoms"] = sorted(results["Bottoms"], key=lambda x: x[0])
-###
-            if not candle_date:
-                candle_date = datetime.utcnow().strftime("%Y-%m-%d")
+
+    if not candle_date:
+        candle_date = datetime.utcnow().strftime("%Y-%m-%d")
 
     return results, sector_counts, candle_date
 
