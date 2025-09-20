@@ -612,8 +612,8 @@ def main():
             # weekly_results, weekly_sectors, weekly_date = pickle.load(f)
     print(f"📈 Scanned Weekly signals in {time.time() - t3:.2f} seconds")
 
-    daily_date_friendly = datetime.strptime(daily_date, "%Y-%m-%d").strftime("%A, %b %d, %Y")
-    report_date_str = f"Signals for close of trade on: {daily_date_friendly}"
+    daily_dt = datetime.strptime(daily_date, "%Y-%m-%d")
+    report_date_str = f"Signals triggered on: {daily_dt.strftime('%A, %b %d, %Y')} (as of NY market close)"
     
     # Step 5: Display results
     def print_section(title, signals):
