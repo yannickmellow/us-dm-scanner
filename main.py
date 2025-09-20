@@ -448,7 +448,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             }}
             .date-subtitle {{
                 margin-top: 4px;
-                font-size: 0.65em;
+                font-size: 0.85em;
                 color: #666;
             }}
             .fg-box {{
@@ -638,7 +638,7 @@ def main():
     print(f"📈 Scanned Weekly signals in {time.time() - t3:.2f} seconds")
 
     daily_dt = datetime.strptime(daily_date, "%Y-%m-%d")
-    report_date_str = f"Signals triggered on: {daily_dt.strftime('%A, %b %d, %Y')} (as of NY market close)"
+    report_date_str = f"Signals triggered on {daily_dt.strftime('%A, %b %d, %Y')} (as of NY market close)"
     
     # Step 5: Display results
     def print_section(title, signals):
