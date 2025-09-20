@@ -447,9 +447,10 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 gap: 12px;
             }}
             .date-subtitle {{
-                margin-top: 4px;
+                margin-top: 6px;
                 font-size: 0.95em;
                 color: #333;
+                margin-bottom: 12px;
             }}
             .fg-box {{
                 background-color: {fg_color};
