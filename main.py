@@ -448,8 +448,8 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             }}
             .date-subtitle {{
                 margin-top: 4px;
-                font-size: 0.85em;
-                color: #666;
+                font-size: 0.95em;
+                color: #333;
             }}
             .fg-box {{
                 background-color: {fg_color};
