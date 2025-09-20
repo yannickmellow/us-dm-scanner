@@ -131,17 +131,39 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
 
             if interval == '1wk':
                 last_date = pd.to_datetime(df['date'].iloc[-1])
-                if last_date.tzinfo is not None:
-                    last_date = last_date.tz_convert(None)  # drops timezone info
+                if getattr(last_date, "tzinfo", None) is not None:
+                    # make naive for consistent comparisons/formatting
+                    try:
+                        last_date = last_date.tz_convert(None)
+                    except Exception:
+                        last_date = last_date.tz_localize(None)
 
+                # drop in-progress week if present
                 today = datetime.utcnow()
-                start_of_week = today - timedelta(days=today.weekday())
-                if last_date >= start_of_week:
+                start_of_week = today - timedelta(days=today.weekday())  # Monday UTC
+                if last_date >= start_of_week and len(df) > 1:
                     df = df.iloc[:-1]
 
-                if not candle_date:
-                    candle_date = df['date'].iloc[-1].strftime("%Y-%m-%d")
+                # set candle_date to last fully completed weekly bar
+                if not candle_date and not df.empty:
+                    candle_date = pd.to_datetime(df['date'].iloc[-1])
+                    if getattr(candle_date, "tzinfo", None) is not None:
+                        try:
+                            candle_date = candle_date.tz_convert(None)
+                        except Exception:
+                            candle_date = candle_date.tz_localize(None)
+                    candle_date = candle_date.strftime("%Y-%m-%d")
 
+            else:
+                # DAILY: set candle_date from the last completed daily bar
+                if not candle_date and not df.empty:
+                    last_date = pd.to_datetime(df['date'].iloc[-1])
+                    if getattr(last_date, "tzinfo", None) is not None:
+                        try:
+                            last_date = last_date.tz_convert(None)
+                        except Exception:
+                            last_date = last_date.tz_localize(None)
+                    candle_date = last_date.strftime("%Y-%m-%d")
 
             DM9Top, DM13Top, DM9Bot, DM13Bot = compute_dm_signals(df)
             sector = ticker_sector_map.get(ticker, "Unknown")
@@ -165,6 +187,9 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
 
     results["Tops"] = sorted(results["Tops"], key=lambda x: x[0])
     results["Bottoms"] = sorted(results["Bottoms"], key=lambda x: x[0])
+###
+            if not candle_date:
+                candle_date = datetime.utcnow().strftime("%Y-%m-%d")
 
     return results, sector_counts, candle_date
 
