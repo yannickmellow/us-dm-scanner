@@ -22,7 +22,8 @@ jobs:
         with:
           path: cache/
           key: price-data-${{ runner.os }}-${{ steps.date.outputs.date }}
-          restore-keys: price-data-${{ runner.os }}-
+          restore-keys: |
+            price-data-${{ runner.os }}-
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
@@ -39,13 +40,6 @@ jobs:
       
       - name: List cache folder contents
         run: ls -la cache/
-
-      - name: Save price data cache
-        uses: actions/cache@v4
-        with:
-          path: cache/
-          key: price-data-${{ runner.os }}-v2
-          restore-keys: price-data-${{ runner.os }}-
           
       - name: ✅ Commit and push changes
         env:
