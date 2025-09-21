@@ -76,10 +76,9 @@ def is_friday_after_close():
 
 
 def load_or_fetch_price_data(tickers, interval, period, cache_key):
-    today = datetime.utcnow().strftime("%Y-%m-%d")
     cache_dir = "cache"
     os.makedirs(cache_dir, exist_ok=True)
-    cache_file = os.path.join(cache_dir, f"price_cache_{cache_key}_{today}.pkl")
+    cache_file = os.path.join(cache_dir, f"price_cache_{cache_key}.pkl")
 
     # Detect if today is Saturday or Sunday (UTC)
     weekday = datetime.utcnow().weekday()
@@ -465,112 +464,118 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         <meta charset="UTF-8">
         <title>US DM Dashboard</title>
         <style>
-            body {{
+            body {
                 font-family: Arial, sans-serif;
                 margin: 20px;
-            }}
-            h1 {{
+            }
+            h1 {
                 color: #333;
                 display: flex;
                 align-items: baseline;
                 gap: 12px;
-            }}
-            .date-subtitle {{
+            }
+            .date-subtitle {
                 margin-top: 6px;
                 font-size: 0.95em;
                 color: #333;
                 margin-bottom: 12px;
-            }}
-            .fg-box {{
-                background-color: {fg_color};
+            }
+            .fg-box {
+                background-color: {{fg_color}};
                 color: white;
                 padding: 10px;
                 margin-bottom: 20px;
                 border-radius: 5px;
                 display: inline-block;
-            }}
-            .summary-table {{
+            }
+            .summary-table {
                 border-collapse: collapse;
                 margin: 20px 0;
-                width: 60%;
-            }}
-            .summary-table th, .summary-table td {{
+                width: 100%; /* full width on mobile by default */
+            }
+            .summary-table th,
+            .summary-table td {
                 border: 1px solid #ccc;
                 padding: 6px 10px;
                 text-align: center;
-            }}
-            .summary-table th {{
+            }
+            .summary-table th {
                 background-color: #f0f0f0;
-            }}
-            .row {{
+            }
+            .row {
                 display: flex;
-                justify-content: space-between;
+                flex-direction: column;  /* default mobile = stacked */
                 margin-bottom: 30px;
-            }}
-            .column {{
+            }
+            .column {
                 flex: 1;
-                margin: 0 10px;
-            }}
-            table {{
+                margin: 10px 0;
+            }
+            table {
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 10px;
-            }}
-            th, td {{
+                font-size: 0.9em;       /* slightly smaller on mobile */
+                display: block;
+                overflow-x: auto;       /* horizontal scroll if needed */
+                white-space: nowrap;
+            }
+            th, td {
                 border: 1px solid #ccc;
-                padding: 6px 8px;
+                padding: 4px 6px;       /* tighter cells for mobile */
                 text-align: left;
-            }}
-            th {{
+            }
+            th {
                 background-color: #f0f0f0;
-            }}
-            .signal-grid {{
+            }
+            .signal-grid {
                 border-collapse: collapse;
                 margin-bottom: 30px;
-            }}
-            .signal-grid td {{
+            }
+            .signal-grid td {
                 border: 1px solid #ccc;
                 padding: 12px 14px;
                 text-align: center;
                 min-width: 100px;
                 font-weight: bold;
-            }}
-            .sortable th {{
+            }
+            .sortable th {
                 background-color: #f0f0f0;
                 cursor: pointer;
                 color: #007bff;
                 text-decoration: underline;
-            }}
-            .sortable th:hover {{
+            }
+            .sortable th:hover {
                 color: #0056b3;
-            }}
-            .sortable th.asc::after {{
-                content: " ▲";
+            }
+            .sortable th.asc::after {
+                 content: " ▲";
                 font-size: 0.8em;
                 color: #333;
-            }}
-            .sortable th.desc::after {{
+            }
+            .sortable th.desc::after {
                 content: " ▼";
                 font-size: 0.8em;
                 color: #333;
-            }}
-            @media (max-width: 768px) {{
-              .row {{
-                flex-direction: column;   /* stack tables vertically */
-              }}
-              .column {{
-                margin: 10px 0;
-              }}
-              table {{
-                font-size: 0.9em;        /* slightly smaller text */
-                display: block;
-                overflow-x: auto;        /* horizontal scroll if needed */
-                white-space: nowrap;
-              }}
-              th, td {{
-                padding: 4px 6px;        /* tighter cells */
-              }}
-            }}
+            }
+
+            /* Desktop overrides for larger screens */
+            @media (min-width: 48em) {   /* ~768px if base font size = 16px */
+                .row {
+                    flex-direction: row;   /* side-by-side columns */
+                }
+                .column {
+                    margin: 0 10px;
+                }
+                table {
+                    font-size: 1em;        /* normal size */
+                    display: table;
+                    white-space: normal;
+                }
+                .summary-table {
+                    width: 60%;            /* narrower summary table */
+                }
+            }
         </style>
     </head>
     <body>
