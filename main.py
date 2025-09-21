@@ -320,6 +320,12 @@ def signals_to_html_table(signals, sortable=False):
     html += "<tr><th>Ticker</th><th>Close Price</th><th>Signal</th><th>Industry</th></tr>"
 
     for ticker, close_price, signal, industry in signals_sorted:
+        # Safe formatting of close price
+        if isinstance(close_price, (int, float)):
+            price_str = f"{close_price:.2f}"
+        else:
+            price_str = str(close_price) if close_price is not None else "N/A"
+
         if signal == "DM9 Top":
             style = "background-color: #ffb3b3;"
         elif signal == "DM13 Top":
@@ -334,7 +340,7 @@ def signals_to_html_table(signals, sortable=False):
         html += (
             f"<tr>"
             f"<td>{ticker}</td>"
-            f"<td>{close_price:.2f}</td>"
+            f"<td>{price_str}</td>"
             f"<td style='{style}'>{signal}</td>"
             f"<td>{industry}</td>"
             f"</tr>"
