@@ -464,54 +464,54 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         <meta charset="UTF-8">
         <title>US DM Dashboard</title>
         <style>
-            body {
+            body {{
                 font-family: Arial, sans-serif;
                 margin: 20px;
-            }
-            h1 {
+            }}
+            h1 {{
                 color: #333;
                 display: flex;
                 align-items: baseline;
                 gap: 12px;
-            }
-            .date-subtitle {
+            }}
+            .date-subtitle {{
                 margin-top: 6px;
                 font-size: 0.95em;
                 color: #333;
                 margin-bottom: 12px;
-            }
-            .fg-box {
+            }}
+            .fg-box {{
                 background-color: {{fg_color}};
                 color: white;
                 padding: 10px;
                 margin-bottom: 20px;
                 border-radius: 5px;
                 display: inline-block;
-            }
-            .summary-table {
+            }}
+            .summary-table {{
                 border-collapse: collapse;
                 margin: 20px 0;
                 width: 100%; /* full width on mobile by default */
-            }
+            }}
             .summary-table th,
-            .summary-table td {
+            .summary-table td {{
                 border: 1px solid #ccc;
                 padding: 6px 10px;
                 text-align: center;
-            }
-            .summary-table th {
+            }}
+            .summary-table th {{
                 background-color: #f0f0f0;
-            }
-            .row {
+            }}
+            .row {{
                 display: flex;
                 flex-direction: column;  /* default mobile = stacked */
                 margin-bottom: 30px;
-            }
-            .column {
+            }}
+            .column {{
                 flex: 1;
                 margin: 10px 0;
-            }
-            table {
+            }}
+            table {{
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 10px;
@@ -519,63 +519,63 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 display: block;
                 overflow-x: auto;       /* horizontal scroll if needed */
                 white-space: nowrap;
-            }
-            th, td {
+            }}
+            th, td {{
                 border: 1px solid #ccc;
                 padding: 4px 6px;       /* tighter cells for mobile */
                 text-align: left;
-            }
-            th {
+            }}
+            th {{
                 background-color: #f0f0f0;
-            }
-            .signal-grid {
+            }}
+            .signal-grid {{
                 border-collapse: collapse;
                 margin-bottom: 30px;
-            }
-            .signal-grid td {
+            }}
+            .signal-grid td {{
                 border: 1px solid #ccc;
                 padding: 12px 14px;
                 text-align: center;
                 min-width: 100px;
                 font-weight: bold;
-            }
-            .sortable th {
+            }}
+            .sortable th {{
                 background-color: #f0f0f0;
                 cursor: pointer;
                 color: #007bff;
                 text-decoration: underline;
-            }
-            .sortable th:hover {
+            }}
+            .sortable th:hover {{
                 color: #0056b3;
-            }
-            .sortable th.asc::after {
+            }}
+            .sortable th.asc::after {{
                  content: " ▲";
                 font-size: 0.8em;
                 color: #333;
-            }
-            .sortable th.desc::after {
+            }}
+            .sortable th.desc::after {{
                 content: " ▼";
                 font-size: 0.8em;
                 color: #333;
-            }
+            }}
 
             /* Desktop overrides for larger screens */
-            @media (min-width: 48em) {   /* ~768px if base font size = 16px */
-                .row {
+            @media (min-width: 48em) {{   /* ~768px if base font size = 16px */
+                .row {{
                     flex-direction: row;   /* side-by-side columns */
-                }
-                .column {
+                }}
+                .column {{
                     margin: 0 10px;
-                }
-                table {
+                }}
+                table {{
                     font-size: 1em;        /* normal size */
                     display: table;
                     white-space: normal;
-                }
-                .summary-table {
+                }}
+                .summary-table {{
                     width: 60%;            /* narrower summary table */
-                }
-            }
+                }}
+            }}
         </style>
     </head>
     <body>
