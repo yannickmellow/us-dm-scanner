@@ -535,6 +535,11 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             th {{
                 background-color: #f0f0f0;
             }}
+            table, th, td {{
+                font-size: 1.1em;
+                line-height: 1.5;
+                -webkit-text-size-adjust: 100%;
+            }}
             .sector-grid {{
                 display: flex;
                 flex-wrap: wrap;
@@ -577,8 +582,9 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 .column {{
                     margin: 0 10px;
                 }}
-                table {{
-                    font-size: 1em;        /* normal size */
+                table, th, td {{
+                    font-size: 1.1em;        /* normal size */
+                    line-height: 1.5;
                     display: table;
                     white-space: normal;
                 }}
