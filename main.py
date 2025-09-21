@@ -481,7 +481,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 margin-bottom: 12px;
             }}
             .fg-box {{
-                background-color: {{fg_color}};
+                background-color: {fg_color};
                 color: white;
                 padding: 10px;
                 margin-bottom: 20px;
@@ -560,7 +560,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             }}
 
             /* Desktop overrides for larger screens */
-            @media (min-width: 48em) {{   /* ~768px if base font size = 16px */
+            @media (min-width: 64em) {{   /* ~1024px if base font size = 16px */
                 .row {{
                     flex-direction: row;   /* side-by-side columns */
                 }}
