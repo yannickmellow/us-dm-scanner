@@ -362,7 +362,7 @@ def build_sector_signal_grid_html(sector_results):
     sector_signals = {}
 
     for signal_type, entries in sector_results.items():
-        for ticker, signal, sector, _ in entries:
+        for ticker, _, signal, sector in entries:
             if sector in expected_labels:
                 current = sector_signals.get(sector)
                 if current is None or ("DM13" in signal and "DM9" in current):
@@ -659,7 +659,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
 
             // Reattach in new order
             rows.forEach(r => tbody.appendChild(r));
-      }    );
+          });
         });
       });
     })();
@@ -746,7 +746,7 @@ def main():
     def print_section(title, signals):
         print(f"\n🔸 {title}\n" + "-" * 40)
         if signals:
-            df = pd.DataFrame(signals, columns=["Ticker", "Signal", "Industry", "Last Close"])
+            df = pd.DataFrame(signals, columns=["Ticker", "Last Close", "Signal", "Industry"])
             df = df[["Ticker", "Last Close", "Signal", "Industry"]]
             print(df.to_string(index=False))
         else:
