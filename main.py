@@ -612,7 +612,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     """
 
     # JS for table sorting
-    html += f"""
+    html += """
     <script>
     document.querySelectorAll("table.sortable").forEach(table => {
       const headers = table.querySelectorAll("th");
