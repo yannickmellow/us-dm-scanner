@@ -71,13 +71,18 @@
             .signal-grid {
                 border-collapse: collapse;
                 margin-bottom: 30px;
+                width: 100%;
+                table-layout: fixed;
             }
             .signal-grid td {
                 border: 1px solid #ccc;
                 padding: 12px 14px;
                 text-align: center;
-                min-width: 100px;
+                word-wrap: break-word;
                 font-weight: bold;
+            }
+            .signal-grid tr {
+                display: table-row;
             }
             .sortable th {
                 background-color: #f0f0f0;
@@ -98,7 +103,17 @@
                 font-size: 0.8em;
                 color: #333;
             }
-
+            /* Mobile override for sector grid */
+            @media (max-width: 64em) {
+                .signal-grid tr {
+                    display: flex;
+                    flex-wrap: wrap;
+                }
+                .signal-grid td {
+                    flex: 0 0 33.33%;
+                    box-sizing: border-box;
+                }
+            }
             /* Desktop overrides for larger screens */
             @media (min-width: 64em) {   /* ~1024px if base font size = 16px */
                 .row {
@@ -144,7 +159,7 @@
                 <td>51</td>
             </tr>
         </table>
-    <h2>Sector Signal Grid</h2><table class="signal-grid"><tr><td style="background-color: #f0f0f0;">Technology</td><td style="background-color: #f0f0f0;">Financials</td><td style="background-color: #f0f0f0;">Communications</td><td style="background-color: #f0f0f0;">Discretionary</td><td style="background-color: #f0f0f0;">Real Estate</td><td style="background-color: #f0f0f0;">Home Builders</td></tr><tr><td style="background-color: #f0f0f0;">Biotechnology</td><td style="background-color: #f0f0f0;">Regional Banks</td><td style="background-color: #f0f0f0;">Healthcare</td><td style="background-color: #f0f0f0;">Staples</td><td style="background-color: #f0f0f0;">Energy</td><td style="background-color: #f0f0f0;">Utilities</td></tr><tr><td style="background-color: #f0f0f0;">Materials</td><td style="background-color: #f0f0f0;">Industrials</td><td style="background-color: #f0f0f0;">Gold</td><td style="background-color: #f0f0f0;">Silver</td><td style="background-color: #f0f0f0;">Bitcoin</td><td style="background-color: #f0f0f0;">Ethereum</td></tr></table>
+    <h2>Sector Signal Grid</h2><div class="sector-grid"><div class="sector-cell" style="background-color: #f0f0f0;">Technology</div><div class="sector-cell" style="background-color: #f0f0f0;">Financials</div><div class="sector-cell" style="background-color: #f0f0f0;">Communications</div><div class="sector-cell" style="background-color: #f0f0f0;">Discretionary</div><div class="sector-cell" style="background-color: #f0f0f0;">Real Estate</div><div class="sector-cell" style="background-color: #f0f0f0;">Home Builders</div><div class="sector-cell" style="background-color: #f0f0f0;">Biotechnology</div><div class="sector-cell" style="background-color: #f0f0f0;">Regional Banks</div><div class="sector-cell" style="background-color: #f0f0f0;">Healthcare</div><div class="sector-cell" style="background-color: #f0f0f0;">Staples</div><div class="sector-cell" style="background-color: #f0f0f0;">Energy</div><div class="sector-cell" style="background-color: #f0f0f0;">Utilities</div><div class="sector-cell" style="background-color: #f0f0f0;">Materials</div><div class="sector-cell" style="background-color: #f0f0f0;">Industrials</div><div class="sector-cell" style="background-color: #f0f0f0;">Gold</div><div class="sector-cell" style="background-color: #f0f0f0;">Silver</div><div class="sector-cell" style="background-color: #f0f0f0;">Bitcoin</div><div class="sector-cell" style="background-color: #f0f0f0;">Ethereum</div></div>
     <div class="row">
         <div class="column">
             <h2>Daily Bottoms</h2>
