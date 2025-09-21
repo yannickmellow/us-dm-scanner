@@ -526,7 +526,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             }}
             table tbody {{
                 display: table;
-                width: 99%;
+                width: 100%;
             }}
             th, td {{
                 border: 1px solid #ccc;
