@@ -524,6 +524,10 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 overflow-x: auto;       /* horizontal scroll if needed */
                 white-space: nowrap;
             }}
+            table tbody {{
+                display: table;
+                width: 100%;
+            }}
             th, td {{
                 border: 1px solid #ccc;
                 padding: 4px 6px;       /* tighter cells for mobile */
