@@ -177,12 +177,12 @@ def scan_timeframe(ticker_sector_map, ticker_industry_map, interval_label, inter
 
             if DM9Top or DM13Top:
                 signal = "DM13 Top" if DM13Top else "DM9 Top"
-                results["Tops"].append((ticker, signal, industry, last_close))
+                results["Tops"].append((ticker, last_close, signal, industry))
                 sector_counts["Tops"][sector] += 1
 
             if DM9Bot or DM13Bot:
                 signal = "DM13 Bot" if DM13Bot else "DM9 Bot"
-                results["Bottoms"].append((ticker, signal, industry, last_close))
+                results["Bottoms"].append((ticker, last_close, signal, industry))
                 sector_counts["Bottoms"][sector] += 1
 
         except Exception as e:
@@ -621,31 +621,48 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     # JavaScript (plain string, no f!)
     html += """
     <script>
-    document.querySelectorAll("table.sortable").forEach(table => {
-      const headers = table.querySelectorAll("th");
-      headers.forEach((header, i) => {
-        header.addEventListener("click", () => {
-          const rows = Array.from(table.querySelectorAll("tr:nth-child(n+2)"));
-          headers.forEach(h => h.classList.remove("asc", "desc"));
-          const asc = !header.classList.contains("asc");
-          header.classList.add(asc ? "asc" : "desc");
-          rows.sort((a, b) => {
-            const aText = a.cells[i].innerText.trim();
-            const bText = b.cells[i].innerText.trim();
-            const aNum = parseFloat(aText.replace(/[^0-9.-]/g, ""));
-            const bNum = parseFloat(bText.replace(/[^0-9.-]/g, ""));
-            if (!isNaN(aNum) && !isNaN(bNum)) {
-              return asc ? aNum - bNum : bNum - aNum;
-            } else {
+    (function () {
+      document.querySelectorAll("table.sortable").forEach(table => {
+        const headers = table.querySelectorAll("th");
+        headers.forEach((header, i) => {
+          header.addEventListener("click", () => {
+            // Grab rows from tbody (browsers auto-insert <tbody>)
+            const tbody = table.tBodies[0] || table;
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+
+            // Determine current state BEFORE clearing, then toggle.
+            const wasAsc = header.classList.contains("asc");
+            const wasDesc = header.classList.contains("desc");
+            const asc = wasDesc || (!wasAsc && !wasDesc); // default asc on first click, then toggle
+
+            // Clear indicators on all headers, then set on this one
+            headers.forEach(h => h.classList.remove("asc", "desc"));
+            header.classList.add(asc ? "asc" : "desc");
+
+            // Sort
+            rows.sort((a, b) => {
+              const aText = a.cells[i]?.innerText.trim() ?? "";
+              const bText = b.cells[i]?.innerText.trim() ?? "";
+
+              // Try numeric compare (handles $ and commas)
+              const aNum = parseFloat(aText.replace(/[^0-9.\-]/g, ""));
+              const bNum = parseFloat(bText.replace(/[^0-9.\-]/g, ""));
+              if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
+                return asc ? (aNum - bNum) : (bNum - aNum);
+              }
+
+              // Fallback to case-insensitive, numeric-aware text compare
               return asc
-                ? aText.localeCompare(bText)
-                : bText.localeCompare(aText);
-            }
-          });
-          rows.forEach(r => table.tBodies[0].appendChild(r));
+                ? aText.localeCompare(bText, undefined, { numeric: true, sensitivity: "base" })
+                : bText.localeCompare(aText, undefined, { numeric: true, sensitivity: "base" });
+            });
+
+            // Reattach in new order
+            rows.forEach(r => tbody.appendChild(r));
+      }    );
         });
       });
-    });
+    })();
     </script>
     """
 
