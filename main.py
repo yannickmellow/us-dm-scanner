@@ -364,16 +364,15 @@ def build_sector_signal_grid_html(sector_results):
     sector_signals = {}
 
     for signal_type, entries in sector_results.items():
-        for ticker, _, signal, sector in entries:
+        for ticker, signal, sector, _ in entries:
             if sector in expected_labels:
                 current = sector_signals.get(sector)
                 if current is None or ("DM13" in signal and "DM9" in current):
                     sector_signals[sector] = signal
 
-    # Render HTML grid
-    html = '<h2>Sector Signal Grid</h2><table class="signal-grid">'
+    # Render HTML grid with <div>
+    html = '<h2>Sector Signal Grid</h2><div class="sector-grid">'
     for row in grid_labels:
-        html += "<tr>"
         for label in row:
             signal = sector_signals.get(label)
             if signal == "DM9 Top":
@@ -386,9 +385,8 @@ def build_sector_signal_grid_html(sector_results):
                 style = "background-color: #c3e6cb; font-weight: bold;"
             else:
                 style = "background-color: #f0f0f0;"
-            html += f'<td style="{style}">{label}</td>'
-        html += "</tr>"
-    html += "</table>"
+            html += f'<div class="sector-cell" style="{style}">{label}</div>'
+    html += "</div>"
     return html
 
 
@@ -531,13 +529,18 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             .signal-grid {{
                 border-collapse: collapse;
                 margin-bottom: 30px;
+                width: 100%;
+                table-layout: fixed;
             }}
             .signal-grid td {{
                 border: 1px solid #ccc;
                 padding: 12px 14px;
                 text-align: center;
-                min-width: 100px;
+                word-wrap: break-word;
                 font-weight: bold;
+            }}
+            .signal-grid tr {{
+                display: table-row;
             }}
             .sortable th {{
                 background-color: #f0f0f0;
@@ -558,7 +561,17 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 font-size: 0.8em;
                 color: #333;
             }}
-
+            /* Mobile override for sector grid */
+            @media (max-width: 64em) {{
+                .signal-grid tr {{
+                    display: flex;
+                    flex-wrap: wrap;
+                }}
+                .signal-grid td {{
+                    flex: 0 0 33.33%;
+                    box-sizing: border-box;
+                }}
+            }}
             /* Desktop overrides for larger screens */
             @media (min-width: 64em) {{   /* ~1024px if base font size = 16px */
                 .row {{
