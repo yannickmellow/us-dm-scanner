@@ -508,6 +508,10 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             .column {{
                 flex: 1;
                 margin: 10px 0;
+                width: 100%;
+            }}
+            .column table {{
+                width: 100%;
             }}
             table {{
                 width: 100%;
