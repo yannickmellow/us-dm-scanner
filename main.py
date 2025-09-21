@@ -519,9 +519,8 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 10px;
-                font-size: 1em;       slightly smaller on mobile */
+                font-size: 1.1em;
                 display: block;
-                ##/* overflow-x: auto;       horizontal scroll if needed */##
                 white-space: normal;
             }}
             table tbody {{
@@ -530,7 +529,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             }}
             th, td {{
                 border: 1px solid #ccc;
-                padding: 4px 6px;       /* tighter cells for mobile */
+                padding: 6px 6px;       /* tighter cells for mobile */
                 text-align: left;
             }}
             th {{
@@ -552,14 +551,12 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 box-sizing: border-box;
             }}
             .sortable th {{
-                content: " *";
                 background-color: #f0f0f0;
                 cursor: pointer;
                 color: #007bff;
                 text-decoration: underline;
             }}
             .sortable th:hover {{
-                content: " *";
                 color: #0056b3;
             }}
             .sortable th.asc::after {{
