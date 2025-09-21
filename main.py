@@ -527,10 +527,10 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 background-color: #f0f0f0;
             }}
             .signal-grid {{
-                border-collapse: collapse;
+                display: flex;
+                flex-wrap: wrap;
                 margin-bottom: 30px;
                 width: 100%;
-                table-layout: fixed;
             }}
             .signal-grid td {{
                 border: 1px solid #ccc;
@@ -538,9 +538,8 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 text-align: center;
                 word-wrap: break-word;
                 font-weight: bold;
-            }}
-            .signal-grid tr {{
-                display: table-row;
+                flex: 0 0 33.33%;   /* 3 columns on mobile/tablet */
+                box-sizing: border-box;
             }}
             .sortable th {{
                 background-color: #f0f0f0;
@@ -561,17 +560,6 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 font-size: 0.8em;
                 color: #333;
             }}
-            /* Mobile override for sector grid */
-            @media (max-width: 64em) {{
-                .signal-grid tr {{
-                    display: flex;
-                    flex-wrap: wrap;
-                }}
-                .signal-grid td {{
-                    flex: 0 0 33.33%;
-                    box-sizing: border-box;
-                }}
-            }}
             /* Desktop overrides for larger screens */
             @media (min-width: 64em) {{   /* ~1024px if base font size = 16px */
                 .row {{
@@ -588,6 +576,8 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 .summary-table {{
                     width: 60%;            /* narrower summary table */
                 }}
+                .signal-grid td {{
+                    flex: 0 0 16.66%;      /* 6 columns on wide screens */
             }}
         </style>
     </head>
