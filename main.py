@@ -561,12 +561,12 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             }}
             .sortable th.asc::after {{
                 content: " ▲";
-                ###font-size: 0.8em;
+                font-size: 0.9em;
                 color: #333;
             }}
             .sortable th.desc::after {{
                 content: " ▼";
-                ###font-size: 0.8em;
+                font-size: 0.9em;
                 color: #333;
             }}
             /* Desktop overrides for larger screens */
