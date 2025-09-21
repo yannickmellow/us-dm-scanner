@@ -152,46 +152,38 @@
     
     <script>
     (function () {
-      document.querySelectorAll("table.sortable").forEach(table => {
-        const headers = table.querySelectorAll("th");
-        headers.forEach((header, i) => {
-          header.addEventListener("click", () => {
-            // Grab rows from tbody (browsers auto-insert <tbody>)
-            const tbody = table.tBodies[0] || table;
-            const rows = Array.from(tbody.querySelectorAll("tr"));
+        document.querySelectorAll("table.sortable").forEach(table => {
+          const headers = table.querySelectorAll("th");
+          headers.forEach((header, i) => {
+            header.addEventListener("click", () => {
+              const tbody = table.tBodies[0] || table;
+              // only grab rows after the header row
+              const rows = Array.from(tbody.querySelectorAll("tr:nth-child(n+2)"));
 
-            // Determine current state BEFORE clearing, then toggle.
-            const wasAsc = header.classList.contains("asc");
-            const wasDesc = header.classList.contains("desc");
-            const asc = wasDesc || (!wasAsc && !wasDesc); // default asc on first click, then toggle
+              const wasAsc = header.classList.contains("asc");
+              const wasDesc = header.classList.contains("desc");
+              const asc = wasDesc || (!wasAsc && !wasDesc);
 
-            // Clear indicators on all headers, then set on this one
-            headers.forEach(h => h.classList.remove("asc", "desc"));
-            header.classList.add(asc ? "asc" : "desc");
+              headers.forEach(h => h.classList.remove("asc", "desc"));
+              header.classList.add(asc ? "asc" : "desc");
 
-            // Sort
-            rows.sort((a, b) => {
-              const aText = a.cells[i]?.innerText.trim() ?? "";
-              const bText = b.cells[i]?.innerText.trim() ?? "";
+              rows.sort((a, b) => {
+                const aText = a.cells[i]?.innerText.trim() ?? "";
+                const bText = b.cells[i]?.innerText.trim() ?? "";
+                const aNum = parseFloat(aText.replace(/[^0-9.\-]/g, ""));
+                const bNum = parseFloat(bText.replace(/[^0-9.\-]/g, ""));
+                if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
+                  return asc ? (aNum - bNum) : (bNum - aNum);
+                }
+                return asc
+                  ? aText.localeCompare(bText, undefined, { numeric: true, sensitivity: "base" })
+                  : bText.localeCompare(aText, undefined, { numeric: true, sensitivity: "base" });
+              });
 
-              // Try numeric compare (handles $ and commas)
-              const aNum = parseFloat(aText.replace(/[^0-9.\-]/g, ""));
-              const bNum = parseFloat(bText.replace(/[^0-9.\-]/g, ""));
-              if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
-                return asc ? (aNum - bNum) : (bNum - aNum);
-              }
-
-              // Fallback to case-insensitive, numeric-aware text compare
-              return asc
-                ? aText.localeCompare(bText, undefined, { numeric: true, sensitivity: "base" })
-                : bText.localeCompare(aText, undefined, { numeric: true, sensitivity: "base" });
+              rows.forEach(r => tbody.appendChild(r));
             });
-
-            // Reattach in new order
-            rows.forEach(r => tbody.appendChild(r));
           });
         });
-      });
     })();
     </script>
     
