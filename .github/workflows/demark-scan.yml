@@ -13,11 +13,15 @@ jobs:
       - name: 📦 Checkout repository
         uses: actions/checkout@v4
 
+      - name: Get date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
       - name: Restore price data cache
         uses: actions/cache@v4
         with:
           path: cache/
-          key: price-data-${{ runner.os }}-latest
+          key: price-data-${{ runner.os }}-${{ steps.date.outputs.date }}
           restore-keys: price-data-${{ runner.os }}-
 
       - name: 🐍 Set up Python
@@ -40,7 +44,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: cache/
-          key: price-data-${{ runner.os }}-latest
+          key: price-data-${{ runner.os }}-v2
           restore-keys: price-data-${{ runner.os }}-
           
       - name: ✅ Commit and push changes
