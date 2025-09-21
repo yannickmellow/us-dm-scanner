@@ -551,23 +551,23 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 font-size: 0.8em;
                 color: #333;
             }}
-            @media (max-width: 768px) {
-              .row {
+            @media (max-width: 768px) {{
+              .row {{
                 flex-direction: column;   /* stack tables vertically */
-              }
-              .column {
+              }}
+              .column {{
                 margin: 10px 0;
-              }
-              table {
+              }}
+              table {{
                 font-size: 0.9em;        /* slightly smaller text */
                 display: block;
                 overflow-x: auto;        /* horizontal scroll if needed */
                 white-space: nowrap;
-              }
-              th, td {
+              }}
+              th, td {{
                 padding: 4px 6px;        /* tighter cells */
-              }
-            }
+              }}
+            }}
         </style>
     </head>
     <body>
