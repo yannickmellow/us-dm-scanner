@@ -526,13 +526,13 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             th {{
                 background-color: #f0f0f0;
             }}
-            .signal-grid {{
+            .sector-grid {{
                 display: flex;
                 flex-wrap: wrap;
                 margin-bottom: 30px;
                 width: 100%;
             }}
-            .signal-grid td {{
+            .sector-cell {{
                 border: 1px solid #ccc;
                 padding: 12px 14px;
                 text-align: center;
@@ -576,7 +576,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 .summary-table {{
                     width: 60%;            /* narrower summary table */
                 }}
-                .signal-grid td {{
+                .sector-cell {{
                     flex: 0 0 16.66%;      /* 6 columns on wide screens */
                 }}
             }}
