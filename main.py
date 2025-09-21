@@ -307,16 +307,19 @@ def sector_counts_to_html(title, sector_counts):
     return html
 
 
-def signals_to_html_table(signals):
+def signals_to_html_table(signals, sortable=False):
     if not signals:
         return "<p>No signals.</p>"
 
-    # sort by ticker
     signals_sorted = sorted(signals, key=lambda x: x[0])
 
-    # build header with new column order
-    html = "<table class='sortable'><tr><th>Ticker</th><th>Last Close</th><th>Signal</th><th>Industry</th></tr>"
-    for ticker, signal, industry, price in signals_sorted:
+    # Add `sortable` class if requested
+    table_class = "sortable" if sortable else ""
+    html = f"<table class='{table_class}'>" if table_class else "<table>"
+
+    html += "<tr><th>Ticker</th><th>Close Price</th><th>Signal</th><th>Industry</th></tr>"
+
+    for ticker, close_price, signal, industry in signals_sorted:
         if signal == "DM9 Top":
             style = "background-color: #ffb3b3;"
         elif signal == "DM13 Top":
@@ -328,15 +331,15 @@ def signals_to_html_table(signals):
         else:
             style = ""
 
-        # ticker, price, signal, industry
         html += (
             f"<tr>"
             f"<td>{ticker}</td>"
-            f"<td>{price:.2f}</td>"
+            f"<td>{close_price:.2f}</td>"
             f"<td style='{style}'>{signal}</td>"
             f"<td>{industry}</td>"
             f"</tr>"
         )
+
     html += "</table>"
     return html
 
@@ -440,13 +443,13 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     else:
         fg_color = "#6c757d"  # Gray fallback
 
-
     # Signal counts
     daily_bottoms = len(daily_results["Bottoms"])
     weekly_bottoms = len(weekly_results["Bottoms"])
     daily_tops = len(daily_results["Tops"])
     weekly_tops = len(weekly_results["Tops"])
 
+    # Opening HTML + CSS
     html = f"""
     <html>
     <head>
@@ -512,7 +515,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             th {{
                 background-color: #f0f0f0;
             }}
-             .signal-grid {{
+            .signal-grid {{
                 border-collapse: collapse;
                 margin-bottom: 30px;
             }}
@@ -526,11 +529,11 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             .sortable th {{
                 background-color: #f0f0f0;
                 cursor: pointer;
-                color: #007bff;         /* link-like blue */
-                text-decoration: underline;  /* underline like hyperlinks */
+                color: #007bff;
+                text-decoration: underline;
             }}
             .sortable th:hover {{
-                color: #0056b3;         /* darker blue on hover */
+                color: #0056b3;
             }}
             .sortable th.asc::after {{
                 content: " ▲";
@@ -544,7 +547,6 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             }}
         </style>
     </head>
-    
     <body>
         <h1>📈 US DM Dashboard 📉 </h1>
         {f'<div class="date-subtitle">{report_date_str}</div>' if report_date_str else ''}
@@ -552,7 +554,6 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             <strong>CNN Fear & Greed Index:</strong> {fg_index} (Prev: {fg_prev}) on {fg_date}
         </div>
         {f'<img src="fg_trend.png" alt="Fear & Greed Trend" style="max-width: 480px; display:block; margin:6px 0 16px 0;">' if fg_plot_path else ''}
-
 
         <h2>Signal Summary</h2>
         <table class="summary-table">
@@ -574,61 +575,54 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         </table>
     """
 
+    # Sector grid
     html += build_sector_signal_grid_html(sector_results)
 
-    
-    # Row 1: Bottoms
+    # Bottoms section
     html += f"""
     <div class="row">
         <div class="column">
             <h2>Daily Bottoms</h2>
-            {signals_to_html_table(daily_results["Bottoms"])}
+            {signals_to_html_table(daily_results["Bottoms"], sortable=True)}
             {sector_counts_to_html("Daily Bottoms by Sector", daily_sectors["Bottoms"])}
         </div>
         <div class="column">
             <h2>Weekly Bottoms</h2>
-            {signals_to_html_table(weekly_results["Bottoms"])}
+            {signals_to_html_table(weekly_results["Bottoms"], sortable=True)}
             <p><em>Weekly signals last updated on {weekly_date}</em></p>
             {sector_counts_to_html("Weekly Bottoms by Sector", weekly_sectors["Bottoms"])}
         </div>
     </div>
     """
 
-    # Row 2: Tops
+    # Tops section
     html += f"""
     <div class="row">
         <div class="column">
             <h2>Daily Tops</h2>
-            {signals_to_html_table(daily_results["Tops"])}
+            {signals_to_html_table(daily_results["Tops"], sortable=True)}
             {sector_counts_to_html("Daily Tops by Sector", daily_sectors["Tops"])}
         </div>
         <div class="column">
             <h2>Weekly Tops</h2>
-            {signals_to_html_table(weekly_results["Tops"])}
+            {signals_to_html_table(weekly_results["Tops"], sortable=True)}
             <p><em>Weekly signals last updated on {weekly_date}</em></p>
             {sector_counts_to_html("Weekly Tops by Sector", weekly_sectors["Tops"])}
         </div>
     </div>
     """
 
-    # JS for table sorting
+    # JavaScript (plain string, no f!)
     html += """
     <script>
     document.querySelectorAll("table.sortable").forEach(table => {
       const headers = table.querySelectorAll("th");
       headers.forEach((header, i) => {
-        header.style.cursor = "pointer";
         header.addEventListener("click", () => {
           const rows = Array.from(table.querySelectorAll("tr:nth-child(n+2)"));
-
-          // Clear sort indicators on all headers
           headers.forEach(h => h.classList.remove("asc", "desc"));
-
-          // Toggle sort direction for this header
           const asc = !header.classList.contains("asc");
           header.classList.add(asc ? "asc" : "desc");
-
-          // Sort rows
           rows.sort((a, b) => {
             const aText = a.cells[i].innerText.trim();
             const bText = b.cells[i].innerText.trim();
@@ -642,16 +636,14 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 : bText.localeCompare(aText);
             }
           });
-
-          // Reattach rows in new order
           rows.forEach(r => table.tBodies[0].appendChild(r));
         });
       });
     });
     </script>
     """
-                      
-    # Sector trend chart
+
+    # Sector trends
     html += """
     <h2 style="margin-top: 40px;">Sector Signal Trends</h2>
     <img src="sector_trends.png" alt="Sector Trends" style="max-width: 100%;">
@@ -663,7 +655,6 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     os.makedirs("docs", exist_ok=True)
     with open("docs/index.html", "w", encoding="utf-8") as f:
         f.write(html)
-
 
 def main():
     start_time = time.time()
