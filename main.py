@@ -652,10 +652,9 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     """
                       
     # Sector trend chart
-    # html += """
-    # <h2 style="margin-top: 40px;">Sector Signal Trends</h2>
-    # <img src="sector_trends.png" alt="Sector Trends" style="max-width: 100%;">
-    
+    html += """
+    <h2 style="margin-top: 40px;">Sector Signal Trends</h2>
+    <img src="sector_trends.png" alt="Sector Trends" style="max-width: 100%;">
     </body>
     </html>
     """
