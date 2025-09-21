@@ -519,9 +519,9 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 10px;
-                /* font-size: 0.9em;       slightly smaller on mobile */
+                font-size: 1em;       slightly smaller on mobile */
                 display: block;
-                /* overflow-x: auto;       horizontal scroll if needed */
+                ##/* overflow-x: auto;       horizontal scroll if needed */##
                 white-space: normal;
             }}
             table tbody {{
@@ -530,7 +530,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             }}
             th, td {{
                 border: 1px solid #ccc;
-                /* padding: 4px 6px;       tighter cells for mobile */
+                padding: 4px 6px;       /* tighter cells for mobile */
                 text-align: left;
             }}
             th {{
