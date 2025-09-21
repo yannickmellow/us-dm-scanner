@@ -511,7 +511,9 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 width: 100%;
             }}
             .column table {{
-                width: 100%;
+                width: 100% !important;
+                max-width: 100%;
+                box-sizing: border-box;
             }}
             table {{
                 width: 100%;
