@@ -81,9 +81,12 @@ def load_or_fetch_price_data(tickers, interval, period, cache_key):
     os.makedirs(cache_dir, exist_ok=True)
     cache_file = os.path.join(cache_dir, f"price_cache_{cache_key}_{today}.pkl")
 
+    # Detect if today is Saturday or Sunday (UTC)
+    weekday = datetime.utcnow().weekday()
+    is_weekend = weekday >= 5
 
-    if os.path.exists(cache_file):
-        print(f"📦 Using cached data: {cache_file}")
+    if is_weekend and os.path.exists(cache_file):
+        print(f"📦 [Weekend] Using cached data: {cache_file}")
         with open(cache_file, "rb") as f:
             return pickle.load(f)
 
