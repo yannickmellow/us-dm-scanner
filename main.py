@@ -578,6 +578,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 }}
                 .signal-grid td {{
                     flex: 0 0 16.66%;      /* 6 columns on wide screens */
+                }}
             }}
         </style>
     </head>
