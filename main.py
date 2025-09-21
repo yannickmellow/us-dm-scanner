@@ -508,15 +508,15 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             .column {{
                 flex: 1;
                 margin: 10px 0;
-                width: 100%;
+                width: 95%;
             }}
             .column table {{
-                width: 100% !important;
-                max-width: 100%;
+                width: 95% !important;
+                max-width: 95%;
                 box-sizing: border-box;
             }}
             table {{
-                width: 100%;
+                width: 95%;
                 border-collapse: collapse;
                 margin-top: 10px;
                 font-size: 0.9em;       /* slightly smaller on mobile */
@@ -526,7 +526,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
             }}
             table tbody {{
                 display: table;
-                width: 100%;
+                width: 95%;
             }}
             th, td {{
                 border: 1px solid #ccc;
