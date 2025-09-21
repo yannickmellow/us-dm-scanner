@@ -585,7 +585,6 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
                 table, th, td {{
                     font-size: 1.1em;        /* normal size */
                     line-height: 1.5;
-                    display: table;
                     white-space: normal;
                 }}
                 .summary-table {{
