@@ -435,7 +435,7 @@ def plot_fear_greed_trend(csv_path="fear_and_greed_history.csv",
 
 def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors,
                       fg_index, fg_prev, fg_date, total_tickers, sector_results,
-                      weekly_date, fg_plot_path=None, report_date_str=None, refresh_seconds=3600):
+                      weekly_date, fg_plot_path=None, report_date_str=None):
     
     # Determine color for Fear & Greed index
     if fg_index != "N/A":
@@ -454,13 +454,16 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     weekly_bottoms = len(weekly_results["Bottoms"])
     daily_tops = len(daily_results["Tops"])
     weekly_tops = len(weekly_results["Tops"])
+                          
+    # Get current timestamp for staleness checking
+    import time
+    page_load_time = int(time.time())
 
     # Opening HTML + CSS
     html = f"""
     <html>
     <head>
         <meta charset="UTF-8">
-        <meta http-equiv="refresh" content="{refresh_seconds}">
         <title>US DM Dashboard</title>
         <style>
             body {{
@@ -598,6 +601,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
         </style>
     </head>
     <body>
+        <div class="refresh-indicator" id="refreshTimer">Page loaded at <span id="loadTime"></span></div>
         <h1>📈 US DM Dashboard 📉 </h1>
         {f'<div class="date-subtitle">{report_date_str}</div>' if report_date_str else ''}
         <div class="fg-box">
