@@ -435,7 +435,7 @@ def plot_fear_greed_trend(csv_path="fear_and_greed_history.csv",
 
 def write_html_report(daily_results, weekly_results, daily_sectors, weekly_sectors,
                       fg_index, fg_prev, fg_date, total_tickers, sector_results,
-                      weekly_date, fg_plot_path=None, report_date_str=None):
+                      weekly_date, fg_plot_path=None, report_date_str=None, refresh_seconds=3600):
     
     # Determine color for Fear & Greed index
     if fg_index != "N/A":
@@ -460,6 +460,7 @@ def write_html_report(daily_results, weekly_results, daily_sectors, weekly_secto
     <html>
     <head>
         <meta charset="UTF-8">
+        <meta http-equiv="refresh" content="{refresh_seconds}">
         <title>US DM Dashboard</title>
         <style>
             body {{
